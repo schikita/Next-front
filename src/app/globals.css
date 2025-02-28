@@ -5,6 +5,12 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --foreground: #333333; /* Светлый текст */
+}
+
+.dark {
+  --background: #333333; /* Тёмный фон */
+  --foreground: #f4f4f4; /* Тёмный текст */
 }
 
 @media (prefers-color-scheme: dark) {
