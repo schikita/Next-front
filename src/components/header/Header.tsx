@@ -6,6 +6,7 @@ import Logo from "./Logo";
 import WeatherAndCurrencies from "./WeatherAndCurrencies";
 import { UserIcon } from '@heroicons/react/24/solid';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';// Импортируем иконку поиска
+import Link from "next/link";
 
 const Header = () => {
   const [theme, setTheme] = useState<string>('light'); // Состояние для темы
@@ -32,8 +33,9 @@ const Header = () => {
         {/* Первый ряд: Логотип, поле поиска, тема и иконка пользователя */}
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-4">
+          <Link href="/" className="flex items-center">
             <Logo />
-            
+          </Link>
             {/* Поле поиска */}
             <div className="relative">
               <input

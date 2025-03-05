@@ -1,6 +1,8 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
+const nextConfig = {
+  reactStrictMode: false, // Отключаем строгий режим (на время тестов)
+  experimental: {
+    appDir: true, // Должно быть включено
+  },
   images: {
     remotePatterns: [
       {

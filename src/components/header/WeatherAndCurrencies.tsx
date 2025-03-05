@@ -49,7 +49,13 @@ const WeatherAndCurrencies = () => {
         <span className="text-sm text-red-500">{error}</span>
       ) : (
         <div className="flex items-center">
-          {weather.icon && <img src={weather.icon} alt="weather icon" className="w-6 h-6 mr-2" />}
+          {weather.icon && (
+  <img
+    src={weather.icon}
+    alt="weather icon"
+    className="w-6 h-6 mr-2 dark:invert"
+  />
+)}
           <span className="text-sm text-gray-800 dark:text-white">
             {weather.city}: {weather.temperature}°C
           </span>

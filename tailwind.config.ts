@@ -7,17 +7,8 @@ export default {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {
-      colors: {
-        background: "var(--background)", // переменная для фона
-        foreground: "var(--foreground)", // переменная для переднего плана
-      },
-      // Добавляем поддержку темной темы с дополнительными переменными
-      screens: {
-        dark: { raw: "(prefers-color-scheme: dark)" }, // автоматически будет менять тему при изменении предпочтений пользователя
-      },
-    },
+    extend: {},
   },
-  darkMode: 'class', // Включаем поддержку классов для переключения тем (переключаем через класс 'dark')
+  darkMode: "class", // ✅ Включаем темную тему через класс 'dark'
   plugins: [],
 } satisfies Config;
