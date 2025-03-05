@@ -1,117 +1,144 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState, useEffect, useCallback } from "react";
+import CategorySlider from "@/components/CategorySlider/CategorySlider";
+import NewsList from "@/components/NewsList/NewsList";
+import { useRouter, useSearchParams } from "next/navigation";
 
-interface NewsArticle {
+interface Category {
   id: number;
-  title: string;
-  description?: string;
-  url: string;
-  publication_at: string;
-  main_image?: string;
-  source: {
-    id: number;
-    name: string;
-    url: string;
-    favicon?: string;
-  };
+  name: string;
 }
 
-interface NewsItem {
+interface Story {
   id: number;
   title: string;
   creation_at: string;
-  category: {
-    id: number;
+  category: Category;
+  source?: {
     name: string;
-    code_name: string;
+    favicon?: string;
   };
-  news_article: NewsArticle;
+  main_image?: string;
+  publication_at?: string;
+  url?: string;
 }
 
 const CategoryNewsList = () => {
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const categoryId = searchParams.get("category") ?? "";
+  const categoryId = searchParams ? searchParams.get("category") : null;
 
-  const [news, setNews] = useState<NewsItem[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [stories, setStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [nextPage, setNextPage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
-  // Функция загрузки новостей
-  const fetchNews = async (cursor: string | null = null) => {
+  // 🔹 Загрузка категорий
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("https://zn.by/api/v1/categories/");
+        const data = await response.json();
+        setCategories(data);
+      } catch (error) {
+        console.error("Ошибка загрузки категорий:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  // 🔹 Функция для загрузки сюжетов
+  const fetchStories = useCallback(async (categoryId?: number, cursor?: string) => {
     setLoading(true);
-    setError(null);
-
     try {
-      let url = "https://zn.by/api/v1/stories/";
-      if (categoryId) url += `?category=${categoryId}`;
-      if (cursor) url += `&cursor=${cursor}`;
+      const params = new URLSearchParams({
+        page_size: "10",
+        ordering: "-creation_at",
+      });
 
-      console.log("Запрос к API:", url);
+      if (categoryId) params.append("category", categoryId.toString());
+      if (cursor) params.append("cursor", cursor);
 
-      const response = await fetch(url);
-      if (!response.ok) throw new Error(`Ошибка загрузки: ${response.status}`);
-
+      const response = await fetch(`https://zn.by/api/v1/stories/?${params.toString()}`);
       const data = await response.json();
 
-      setNews((prevNews) => [...prevNews, ...(data.results || [])]);
-      setNextPage(data.next ?? null);
-    } catch (err) {
-      setError("Не удалось загрузить новости");
-      console.error(err);
+      const newStories: Story[] = data.results.map((story: any) => ({
+        id: story.id,
+        title: story.title,
+        creation_at: story.creation_at,
+        category: story.category,
+        source: story.news_article?.source || { name: "Источник неизвестен" },
+        main_image: story.news_article?.main_image || null,
+        publication_at: story.news_article?.publication_at,
+        url: story.news_article?.url,
+      }));
+
+      setStories((prev) => (cursor ? [...prev, ...newStories] : newStories));
+      setNextPage(data.next || null);
+    } catch (error) {
+      console.error("Ошибка загрузки новостей:", error);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
+  // 🔹 Устанавливаем текущую категорию по умолчанию (Политика) или из URL
   useEffect(() => {
-    setNews([]); // Очистка перед загрузкой новых данных
-    fetchNews();
-  }, [categoryId]);
+    if (categories.length > 0) {
+      const defaultCategory = categories.find((cat) => cat.name === "Политика") || categories[0];
+      const selected = categoryId
+        ? categories.find((cat) => cat.id.toString() === categoryId) || defaultCategory
+        : defaultCategory;
 
-  const loadMoreNews = () => {
+      setSelectedCategory(selected);
+      fetchStories(selected.id);
+    }
+  }, [categories, categoryId, fetchStories]);
+
+
+
+
+  
+  // 🔹 Обработчик выбора категории
+  const handleSelectCategory = useCallback(
+    (categoryId: number | null) => {
+      setStories([]);
+      setNextPage(null);
+      const category = categories.find((cat) => cat.id === categoryId) || null;
+      setSelectedCategory(category);
+      router.push(category ? `?category=${category.id}` : "/");
+      fetchStories(category?.id);
+    },
+    [fetchStories, router, categories]
+  );
+
+  // 🔹 Функция загрузки следующей страницы
+  const loadMoreStories = useCallback(() => {
     if (nextPage) {
       const cursor = new URL(nextPage).searchParams.get("cursor");
-      fetchNews(cursor);
+      fetchStories(selectedCategory?.id, cursor || undefined);
     }
-  };
+  }, [nextPage, fetchStories, selectedCategory]);
 
   return (
-    <div className="container mx-auto px-4 max-w-4xl">
-      <h2 className="text-xl font-bold mb-4">
-        {categoryId ? `Новости категории: ${categoryId}` : "Все новости"}
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 mt-6">
+      {/* Заголовок с текущей категорией */}
+      <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3 border-b-4 border-gray-300 pb-1">
+        {selectedCategory ? selectedCategory.name : "Актуальные сюжеты"}
       </h2>
 
-      {error && <p className="text-red-500">{error}</p>}
-      {loading && !news.length && <p>Загрузка...</p>}
+      {/* Слайдер категорий */}
+      <CategorySlider
+        categories={categories}
+        selectedCategory={selectedCategory?.id || null} // Передаем id вместо объекта
+        onSelectCategory={handleSelectCategory}
+      />
 
-      <ul className="space-y-4">
-        {news.map((item) => (
-          <li key={item.id} className="border-b pb-4">
-            <a href={item.news_article.url} target="_blank" rel="noopener noreferrer">
-              <h3 className="text-lg font-semibold hover:underline">{item.title}</h3>
-            </a>
-            <p className="text-sm text-gray-600">{item.news_article.summary}</p>
-            {item.news_article.main_image && (
-              <img src={item.news_article.main_image} alt={item.title} className="w-full max-h-48 object-cover mt-2 rounded-lg" />
-            )}
-            <p className="text-xs text-gray-500 mt-1">
-              {new Date(item.news_article.publication_at).toLocaleString()} | Источник: {item.news_article.source.name}
-            </p>
-          </li>
-        ))}
-      </ul>
-
-      {nextPage && (
-        <button
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          onClick={loadMoreNews}
-        >
-          Загрузить ещё
-        </button>
-      )}
+      {/* Список сюжетов */}
+      <NewsList stories={stories} showSkeleton={loading} onLoadMore={nextPage ? loadMoreStories : undefined} />
     </div>
   );
 };

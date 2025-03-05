@@ -1,38 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import useCategories from "@/components/CategorySlider/useCategories";
-import CategorySlider from "@/components/CategorySlider/CategorySlider";
+import React from "react";
+import CategoryNewsList from "@/components/CategoryNewsList/CategoryNewsList";
 
 const HomePage = () => {
-  const { categories, loading, error } = useCategories();
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (categories.length > 0) {
-      const politicsCategory = categories.find((cat) => cat.name === "Политика");
-      if (politicsCategory) {
-        setSelectedCategory(politicsCategory.id);
-      }
-    }
-  }, [categories]); // Выполняем только после загрузки категорий
-
-  if (loading) {
-    return <div>Загрузка...</div>;
-  }
-
-  if (error) {
-    return <div>{error}</div>;
-  }
-
   return (
-    <main>
-      
-      <CategorySlider 
-        categories={categories} 
-        selectedCategory={selectedCategory} 
-        onSelectCategory={setSelectedCategory} // Передаем управление выбором категории
-      />
+    <main className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 mt-6">
+      <CategoryNewsList />
     </main>
   );
 };
