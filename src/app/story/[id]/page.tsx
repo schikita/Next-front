@@ -1,22 +1,17 @@
 "use client";
 
-import { notFound } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { notFound } from "next/navigation";
 import CategorySlider from "@/components/CategorySlider/CategorySlider";
 import NewsHeader from "@/components/NewsHeader/NewsHeader";
 import NewsMainContent from "@/components/NewsMainContent/NewsMainContent";
 import RelatedArticles from "@/components/RelatedArticles/RelatedArticles";
-//import RelevantSideBar from "@/components/RelevantSideBar";
-//import RecommendationsWithAd from "@/components/NewsDetailPage/RecommendationsWithAd";
-//import EditorialPicks from "@/components/HomePage/EditorialPicks";
-//import AdBanner from "@/components/AdBanner";
-//import NotFound from "@/components/NotFound"; // поменять на штатный 404
+import RelevantSideBar from "@/components/RelevantSideBar/RelevantSideBar";
 
 interface Category {
   id: number;
   name: string;
-  code_name: string;
 }
 
 interface Source {
@@ -29,13 +24,12 @@ interface Source {
 interface NewsArticle {
   id: number;
   title: string;
-  description: string;
-  summary: string;
-  text: string;
+  description?: string;
+  summary?: string;
+  text?: string;
   url: string;
   publication_at: string;
   source: Source;
-  main_image: string;
 }
 
 interface Story {
@@ -50,10 +44,9 @@ const StoryDetailPage = () => {
   const { id } = useParams();
   const [story, setStory] = useState<Story | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(
-    null
-  );
+  const [error, setError] = useState<boolean>(false);
+  const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(null);
+  const [relatedStories, setRelatedStories] = useState<Story[]>([]);
 
   useEffect(() => {
     const fetchStoryDetails = async () => {
@@ -65,9 +58,23 @@ const StoryDetailPage = () => {
 
         setStory(data);
         setSelectedArticle(data.news_articles[0] || null);
+
+        console.log("Fetched story:", data);
+
+        // Загружаем связанные истории
+        const relatedRes = await fetch(
+          `https://zn.by/api/v1/stories/?category=${data.category.id}&page_size=5`
+        );
+        const relatedData = await relatedRes.json();
+        console.log("Fetched related stories:", relatedData.results);
+
+        // ✅ Проверяем, изменились ли данные перед обновлением состояния
+        if (JSON.stringify(relatedStories) !== JSON.stringify(relatedData.results)) {
+          setRelatedStories(relatedData.results.filter((item: Story) => item.id !== data.id));
+        }
       } catch (error) {
         console.error("Ошибка загрузки:", error);
-        setError("Сюжет не найден.");
+        setError(true);
       } finally {
         setLoading(false);
       }
@@ -79,16 +86,16 @@ const StoryDetailPage = () => {
     }
   }, [id]);
 
-  if (error) return notFound(); // Выводим стандартную 404-страницу Next.js
+  if (error) return notFound(); // Перенаправление на 404
 
   return (
     <main className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 mt-6">
       {/* Слайдер категорий */}
       <div className="mb-6">
         <CategorySlider
-          categories={[]} // Заглушка, можно заменить на реальные категории
-          selectedCategory={story?.category.id || null}
-          onSelectCategory={() => {}}
+          categories={[{ id: 1, name: "Политика" }, { id: 2, name: "Экономика" }]} // Временные данные
+          selectedCategory={story?.category?.id || null}
+          onSelectCategory={(categoryId) => console.log("Выбрана категория:", categoryId)}
         />
       </div>
 
@@ -112,9 +119,7 @@ const StoryDetailPage = () => {
                 {/* Основное содержание */}
                 <NewsMainContent
                   mainImages={story.main_images || []}
-                  text={
-                    selectedArticle.summary || selectedArticle.description || ""
-                  }
+                  text={selectedArticle.summary || selectedArticle.description || ""}
                   url={selectedArticle.url}
                   articleId={Number(id)}
                   loading={loading}
@@ -134,6 +139,14 @@ const StoryDetailPage = () => {
             )
           )}
         </div>
+
+        {/* Боковая панель с новостями */}
+        <aside className="hidden md:block">
+          {/* ✅ Оптимизированный Sidebar */}
+          {!loading && relatedStories.length > 0 && (
+            <RelevantSideBar excludeId={Number(id)} relatedStories={relatedStories} />
+          )}
+        </aside>
       </div>
     </main>
   );
