@@ -19,32 +19,32 @@ const ShareButtons: React.FC<ShareButtonsProps> = ({ open, onClose, shareUrl, ti
     {
       name: "Telegram",
       href: `https://t.me/share/url?url=${encodedUrl}&text=${titleToShare}`,
-      icon: "/static/telegram-svgrepo-com.svg",
+      icon: "/social-icons/telegram.svg",
     },
     {
       name: "Twitter (X)",
       href: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${titleToShare}`,
-      icon: "/static/x.svg",
+      icon: "/social-icons/x.svg",
     },
     {
       name: "WhatsApp",
       href: `https://api.whatsapp.com/send?text=${titleToShare} ${encodedUrl}`,
-      icon: "/static/whatsapp-svgrepo-com.svg",
+      icon: "/social-icons/whatsapp.svg",
     },
     {
       name: "VK",
       href: `https://vk.com/share.php?url=${encodedUrl}`,
-      icon: "/static/vk-svgrepo-com.svg",
+      icon: "/social-icons/vk.svg",
     },
     {
       name: "Viber",
       href: `viber://forward?text=${titleToShare} ${encodedUrl}`,
-      icon: "/static/viber-svgrepo-com.svg",
+      icon: "/social-icons/viber.svg",
     },
     {
       name: "Одноклассники",
       href: `https://connect.ok.ru/offer?url=${encodedUrl}`,
-      icon: "/static/ok-svgrepo-com.svg",
+      icon: "/social-icons/ok.svg",
     },
   ];
 

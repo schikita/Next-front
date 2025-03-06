@@ -1,103 +1,85 @@
-"use client";
-
 import React, { useState } from "react";
-import Image from "next/image";
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface ImageSliderModalProps {
-  mainImages: string[];
+  images: string[];
 }
 
-const ImageSliderModal: React.FC<ImageSliderModalProps> = ({ mainImages }) => {
-  const [open, setOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+const ImageSliderModal: React.FC<ImageSliderModalProps> = ({ images }) => {
+  const [selectedImage, setSelectedImage] = useState(images[0]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [open, setOpen] = useState(false);
 
-  const handleClickOpen = (image: string, index: number) => {
-    setSelectedImage(image);
-    setCurrentIndex(index);
-    setOpen(true);
-  };
+  if (!images.length) return null;
 
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const handlePrevious = () => {
-    const newIndex = (currentIndex - 1 + mainImages.length) % mainImages.length;
-    setSelectedImage(mainImages[newIndex]);
+  const handleNext = () => {
+    const newIndex = (currentIndex + 1) % images.length;
+    setSelectedImage(images[newIndex]);
     setCurrentIndex(newIndex);
   };
 
-  const handleNext = () => {
-    const newIndex = (currentIndex + 1) % mainImages.length;
-    setSelectedImage(mainImages[newIndex]);
+  const handlePrev = () => {
+    const newIndex = (currentIndex - 1 + images.length) % images.length;
+    setSelectedImage(images[newIndex]);
     setCurrentIndex(newIndex);
   };
 
   return (
-    <>
-      {/* Миниатюры изображений */}
-      <div className="flex gap-2 overflow-x-auto">
-        {mainImages.map((image, index) => (
-          <div
+    <div className="relative">
+      <div className="flex space-x-2">
+        {images.slice(0, 3).map((image, index) => (
+          <img
             key={index}
-            className="relative w-full h-40 rounded-lg overflow-hidden cursor-pointer"
-            onClick={() => handleClickOpen(image, index)}
-          >
-            <Image
-              src={image}
-              alt={`Thumbnail ${index}`}
-              layout="fill"
-              objectFit="cover"
-              className="rounded-lg"
-            />
-            {index === mainImages.length - 1 && mainImages.length > 3 && (
-              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white text-sm font-bold">
-                + Ещё фото
-              </div>
-            )}
-          </div>
+            src={image}
+            alt="Thumbnail"
+            className="w-20 h-20 object-cover rounded-md cursor-pointer"
+            onClick={() => {
+              setSelectedImage(image);
+              setCurrentIndex(index);
+              setOpen(true);
+            }}
+          />
         ))}
+        {images.length > 3 && (
+          <div
+            className="w-20 h-20 flex items-center justify-center bg-gray-500 text-white rounded-md cursor-pointer"
+            onClick={() => setOpen(true)}
+          >
+            +{images.length - 3}
+          </div>
+        )}
       </div>
 
       {/* Модальное окно */}
-      {open && selectedImage && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50">
-          <button
-            onClick={handleClose}
-            className="absolute top-4 right-4 text-white p-2"
-          >
-            <X className="w-6 h-6" />
-          </button>
-
-          <button
-            onClick={handlePrevious}
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white p-2"
-          >
-            <ChevronLeft className="w-8 h-8" />
-          </button>
-
-          <div className="relative w-full max-w-3xl h-auto">
-            <Image
+      {open && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50">
+          <div className="relative w-11/12 md:w-2/3 lg:w-1/2">
+            <button
+              className="absolute top-2 right-2 text-white text-lg"
+              onClick={() => setOpen(false)}
+            >
+              ✕
+            </button>
+            <img
               src={selectedImage}
-              alt="Selected Story"
-              layout="responsive"
-              width={800}
-              height={500}
-              className="rounded-lg"
+              alt="Selected"
+              className="w-full max-h-[80vh] object-contain rounded-md"
             />
+            <button
+              className="absolute left-2 top-1/2 transform -translate-y-1/2 text-white"
+              onClick={handlePrev}
+            >
+              ◀
+            </button>
+            <button
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white"
+              onClick={handleNext}
+            >
+              ▶
+            </button>
           </div>
-
-          <button
-            onClick={handleNext}
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white p-2"
-          >
-            <ChevronRight className="w-8 h-8" />
-          </button>
         </div>
       )}
-    </>
+    </div>
   );
 };
 

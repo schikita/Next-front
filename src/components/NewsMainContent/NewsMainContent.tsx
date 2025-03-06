@@ -7,25 +7,43 @@ interface NewsMainContentProps {
   url?: string;
   articleId: number;
   loading: boolean;
-  initialReactions?: any;
 }
 
 const NewsMainContent: React.FC<NewsMainContentProps> = ({
-  mainImages,
+  mainImages = [],
   text,
   url,
-  articleId,
   loading,
 }) => {
   return (
-    <div className="flex flex-col space-y-4 px-4">
+    <div className="flex flex-col space-y-4 p-4 bg-white dark:bg-gray-900 rounded-lg shadow-md">
       {/* Основной контент */}
-      <div className="text-gray-800 dark:text-gray-300 text-sm font-medium">
+      <div className="text-gray-800 dark:text-gray-300 text-base leading-relaxed">
         {loading ? (
           <div className="w-full h-20 bg-gray-200 dark:bg-gray-700 animate-pulse rounded"></div>
         ) : (
-          <span dangerouslySetInnerHTML={{ __html: text }} />
+          <p dangerouslySetInnerHTML={{ __html: text }} />
         )}
+      </div>
+
+      {/* Блок реакций */}
+      <div className="flex items-center space-x-4 text-gray-600 dark:text-gray-400 text-sm">
+        <div className="flex items-center space-x-1 cursor-pointer">
+          <span>👍</span>
+          <span>0</span>
+        </div>
+        <div className="flex items-center space-x-1 cursor-pointer">
+          <span>👎</span>
+          <span>0</span>
+        </div>
+        <div className="flex items-center space-x-1 cursor-pointer">
+          <span>😃</span>
+          <span>0</span>
+        </div>
+        <div className="flex items-center space-x-1 cursor-pointer">
+          <span>😡</span>
+          <span>0</span>
+        </div>
       </div>
 
       {/* Кнопка "Читать в первоисточнике" */}
@@ -62,9 +80,7 @@ const NewsMainContent: React.FC<NewsMainContentProps> = ({
       {loading ? (
         <div className="w-full h-40 bg-gray-200 dark:bg-gray-700 animate-pulse rounded"></div>
       ) : (
-        mainImages && mainImages.length > 0 && (
-          <ImageSliderModal mainImages={mainImages} />
-        )
+        mainImages.length > 0 && <ImageSliderModal images={mainImages} />
       )}
     </div>
   );

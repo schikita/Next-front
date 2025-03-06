@@ -4,6 +4,7 @@ const nextConfig = {
     appDir: true, // Должно быть включено
   },
   images: {
+    domains: ["zn.by"],
     remotePatterns: [
       {
         protocol: "https",
@@ -11,6 +12,7 @@ const nextConfig = {
         pathname: "/dj_media/source_avatars/**",
       },
     ],
+    unoptimized: true,
   },
 };
 

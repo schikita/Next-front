@@ -4,6 +4,7 @@ import React from "react";
 import Image from "next/image";
 import DynamicTimeDisplay from "@/components/DynamicTimeDisplay/DynamicTimeDisplay";
 import DropdownButton from "@/components/DropdownButton/DropdownButton";
+import "./NewsHeader.css";
 
 interface Source {
   name: string;
@@ -16,6 +17,11 @@ interface NewsHeaderProps {
   title: string;
   shareUrl: string;
 }
+
+const getValidImageUrl = (url: string | undefined) => {
+  if (!url) return "/placeholder.png"; // Заглушка, если URL отсутствует
+  return url.startsWith("http") ? url : `https://zn.by${url}`; // Делаем URL абсолютным
+};
 
 const NewsHeader: React.FC<NewsHeaderProps> = ({
   source,
@@ -30,19 +36,23 @@ const NewsHeader: React.FC<NewsHeaderProps> = ({
         <div className="flex items-center">
           {/* Фавиконка источника */}
           {source.favicon && (
-            <Image
-              src={source.favicon}
-              alt={source.name}
-              width={15}
-              height={15}
-              className="w-[15px] h-[15px] rounded-full border border-gray-300 dark:border-gray-600 mr-2"
-            />
+            <img
+            src={getValidImageUrl(source?.favicon)}
+            alt={source?.name || "Источник"}
+            width={20}
+            height={20}
+            className="w-6 h-6 rounded-full border border-gray-300 dark:border-gray-600"
+          />
+          
           )}
 
           {/* Название источника */}
-          <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
-            {source.name}
-          </span>
+          <div className="source_name pl-3">
+            <span className="source_name text-sm font-semibold text-gray-800 dark:text-gray-200">
+              {source.name}
+            </span>
+          </div>
+          
         </div>
 
         {/* Кнопка "Поделиться" */}
