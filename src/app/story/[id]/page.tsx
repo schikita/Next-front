@@ -1,5 +1,6 @@
 "use client";
 
+import { notFound } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import CategorySlider from "@/components/CategorySlider/CategorySlider";
@@ -53,9 +54,7 @@ const StoryDetailPage = () => {
   const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(
     null
   );
-  const [relatedStories, setRelatedStories] = useState<Story[]>([]);
 
-  // 🔹 Загрузка данных истории и связанных материалов
   useEffect(() => {
     const fetchStoryDetails = async () => {
       setLoading(true);
@@ -65,16 +64,7 @@ const StoryDetailPage = () => {
         const data: Story = await res.json();
 
         setStory(data);
-        setSelectedArticle(data.news_articles[0]);
-
-        // Загружаем связанные истории
-        const relatedRes = await fetch(
-          `https://zn.by/api/v1/stories/?category=${data.category.id}&page_size=5`
-        );
-        const relatedData = await relatedRes.json();
-        setRelatedStories(
-          relatedData.results.filter((item: Story) => item.id !== data.id)
-        );
+        setSelectedArticle(data.news_articles[0] || null);
       } catch (error) {
         console.error("Ошибка загрузки:", error);
         setError("Сюжет не найден.");
@@ -89,14 +79,14 @@ const StoryDetailPage = () => {
     }
   }, [id]);
 
- 
+  if (error) return notFound(); // Выводим стандартную 404-страницу Next.js
 
   return (
     <main className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 mt-6">
       {/* Слайдер категорий */}
       <div className="mb-6">
         <CategorySlider
-          categories={[]} 
+          categories={[]} // Заглушка, можно заменить на реальные категории
           selectedCategory={story?.category.id || null}
           onSelectCategory={() => {}}
         />
@@ -107,54 +97,42 @@ const StoryDetailPage = () => {
         {/* Основной контент */}
         <div className="md:col-span-3">
           {loading ? (
-            <p>Загрузка...</p>
+            <p className="text-center text-gray-500">Загрузка...</p>
           ) : (
-            <>
-              {selectedArticle && (
-                <>
-                  {/* Заголовок */}
-                  <NewsHeader
-                    source={selectedArticle.source}
-                    creationDate={selectedArticle.publication_at}
-                    title={selectedArticle.title}
-                    shareUrl={`https://zn.by/story/${id}`}
+            story && selectedArticle && (
+              <>
+                {/* Заголовок новости */}
+                <NewsHeader
+                  source={selectedArticle.source}
+                  creationDate={selectedArticle.publication_at}
+                  title={selectedArticle.title}
+                  shareUrl={`https://zn.by/story/${id}`}
+                />
+
+                {/* Основное содержание */}
+                <NewsMainContent
+                  mainImages={story.main_images || []}
+                  text={
+                    selectedArticle.summary || selectedArticle.description || ""
+                  }
+                  url={selectedArticle.url}
+                  articleId={Number(id)}
+                  loading={loading}
+                />
+
+                {/* Связанные статьи */}
+                {story.news_articles.length > 1 && (
+                  <RelatedArticles
+                    articles={story.news_articles.filter(
+                      (article) => article.id !== selectedArticle.id
+                    )}
+                    onArticleClick={setSelectedArticle}
+                    selectedArticle={selectedArticle}
                   />
-
-                   
-                 <NewsMainContent
-                 mainImages={story?.main_images || []}
-                 text={selectedArticle?.summary || selectedArticle?.description || ""}
-                 url={selectedArticle?.url}
-                 articleId={Number(id)}
-                 loading={!story} // Передаем true, если story еще загружается
-               />
-               
-
-                 
-                  <div className="mt-6">
-                    <RelatedArticles
-                      articles={story?.news_articles || []}
-                      onArticleClick={setSelectedArticle}
-                      selectedArticle={selectedArticle}
-                    />
-                  </div>
-                 
-                  {/* Рекомендации */}
-                  
-                </>
-              )}
-            </>
+                )}
+              </>
+            )
           )}
-        </div>
-
-        {/* Боковая колонка */}
-        <div className="hidden md:block">
-         
-
-          {/* Редакционные подборки */}
-         
-          {/* Рекламный баннер */}
-          
         </div>
       </div>
     </main>

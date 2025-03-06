@@ -18,6 +18,11 @@ interface RelatedArticlesProps {
   selectedArticleId: number;
 }
 
+const getValidImageUrl = (url: string | undefined) => {
+  if (!url) return "/placeholder.png"; // Заглушка, если URL отсутствует
+  return url.startsWith("http") ? url : `https://zn.by${url}`; // Делаем URL абсолютным
+};
+
 export default function RelatedArticles({
   articles,
   onArticleClick,
@@ -42,11 +47,14 @@ export default function RelatedArticles({
         >
           <div className="flex items-center gap-2">
             {article.source.favicon && (
-              <img
-                src={article.source.favicon}
-                alt="Источник"
-                className="w-5 h-5 rounded-full border border-gray-300 dark:border-gray-600"
-              />
+               <img
+              src={getValidImageUrl(article.source.favicon)}
+              alt={article.source.name || "Источник"}
+              width={20}
+              height={20}
+              className="w-6 h-6 rounded-full border border-gray-300 dark:border-gray-600"
+            />
+              
             )}
             <span className="text-sm font-medium">{article.source.name}</span>
             <span className="text-xs text-gray-500">{formatTimeAgo(article.publication_at)}</span>
