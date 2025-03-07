@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { notFound } from "next/navigation";
-import CategorySlider from "@/components/CategorySlider/CategorySlider";
+import CategoryNavigation from "@/components/CategoryNavigation/CategoryNavigation";
 import NewsHeader from "@/components/NewsHeader/NewsHeader";
 import NewsMainContent from "@/components/NewsMainContent/NewsMainContent";
 import RelatedArticles from "@/components/RelatedArticles/RelatedArticles";
@@ -92,11 +92,7 @@ const StoryDetailPage = () => {
     <main className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 mt-6">
       {/* Слайдер категорий */}
       <div className="mb-6">
-        <CategorySlider
-          categories={[{ id: 1, name: "Политика" }, { id: 2, name: "Экономика" }]} // Временные данные
-          selectedCategory={story?.category?.id || null}
-          onSelectCategory={(categoryId) => console.log("Выбрана категория:", categoryId)}
-        />
+        <CategoryNavigation />
       </div>
 
       {/* Основная сетка контента */}
