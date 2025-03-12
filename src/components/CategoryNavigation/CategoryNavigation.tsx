@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useRouter, usePathname, useParams } from "next/navigation";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 
 interface Category {
@@ -12,15 +12,13 @@ interface Category {
 const CategoryNavigation = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const categoryId = searchParams.get("category");
+  const { id } = useParams();
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [isAtStart, setIsAtStart] = useState(true);
   const [isAtEnd, setIsAtEnd] = useState(false);
 
-  // Загружаем категории
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -34,10 +32,8 @@ const CategoryNavigation = () => {
     fetchCategories();
   }, []);
 
-  // Определяем активную категорию
-  const activeCategoryId = categoryId ? Number(categoryId) : null;
+  const activeCategoryId = id ? Number(id) : null;
 
-  // Обновление состояния скролла
   const updateScrollState = () => {
     if (!containerRef.current) return;
     const { scrollLeft, scrollWidth, clientWidth } = containerRef.current;
@@ -58,45 +54,38 @@ const CategoryNavigation = () => {
     };
   }, []);
 
-  // Прокрутка влево
   const scrollLeft = () => {
     if (containerRef.current) {
       containerRef.current.scrollBy({ left: -200, behavior: "smooth" });
     }
   };
 
-  // Прокрутка вправо
   const scrollRight = () => {
     if (containerRef.current) {
       containerRef.current.scrollBy({ left: 200, behavior: "smooth" });
     }
   };
 
-  // Обработчик нажатия на категорию
   const handleCategoryClick = (categoryId: number) => {
-    if (pathname.startsWith("/story/")) {
-      router.push(`/category/${categoryId}`); // Если на странице сюжета — уходим в категорию
-    } else {
-      router.push(`${pathname}?category=${categoryId}`); // Если в категории — обновляем URL
-    }
+    router.push(`/category/${categoryId}`);
   };
 
   return (
     <div className="relative max-w-screen-lg mx-auto px-4 sm:px-6 md:px-8">
-      {/* Контейнер с категориями и стрелками */}
       <div className="relative flex items-center">
-        {/* Левая стрелка (всегда показываем) */}
-        <button
-          onClick={scrollLeft}
-          className="absolute left-0 z-10 bg-white dark:bg-gray-800 shadow-md rounded-full p-2 flex items-center justify-center border border-gray-300 dark:border-gray-600"
-        >
-          <ChevronLeftIcon className="w-6 h-6 text-gray-600 dark:text-gray-400" />
-        </button>
+        {/* Левая стрелка (теперь скрывается, если крайнее левое положение) */}
+        {!isAtStart && (
+          <button
+            onClick={scrollLeft}
+            className="absolute left-0 z-10 bg-white dark:bg-gray-800 shadow-md rounded-full p-2 flex items-center justify-center border border-gray-300 dark:border-gray-600"
+          >
+            <ChevronLeftIcon className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+          </button>
+        )}
 
-        {/* Категории */}
         <div
           ref={containerRef}
-          className="flex space-x-3 overflow-x-auto no-scrollbar scroll-smooth px-8 md:px-0"
+          className="flex space-x-3 overflow-x-auto no-scrollbar scroll-smooth px-12 md:px-4"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {categories.map((category) => (
@@ -118,7 +107,10 @@ const CategoryNavigation = () => {
         {/* Правая стрелка (всегда показываем) */}
         <button
           onClick={scrollRight}
-          className="absolute right-0 z-10 bg-white dark:bg-gray-800 shadow-md rounded-full p-2 flex items-center justify-center border border-gray-300 dark:border-gray-600"
+          className={`absolute right-0 z-10 bg-white dark:bg-gray-800 shadow-md rounded-full p-2 flex items-center justify-center border border-gray-300 dark:border-gray-600 ${
+            isAtEnd ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+          disabled={isAtEnd}
         >
           <ChevronRightIcon className="w-6 h-6 text-gray-600 dark:text-gray-400" />
         </button>
