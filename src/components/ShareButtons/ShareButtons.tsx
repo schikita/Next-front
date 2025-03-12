@@ -7,18 +7,20 @@ interface ShareButtonsProps {
   onClose: () => void;
   shareUrl: string;
   title: string;
+  imageUrl?: string | null; // ✅ Добавляем поддержку изображения
 }
 
-const ShareButtons: React.FC<ShareButtonsProps> = ({ open, onClose, shareUrl, title }) => {
+const ShareButtons: React.FC<ShareButtonsProps> = ({ open, onClose, shareUrl, title, imageUrl }) => {
   if (!open) return null;
 
   const titleToShare = encodeURIComponent(title);
   const encodedUrl = encodeURIComponent(shareUrl);
+  const encodedImage = imageUrl ? encodeURIComponent(imageUrl) : ""; // ✅ Кодируем картинку
 
   const socialLinks = [
     {
       name: "Telegram",
-      href: `https://t.me/share/url?url=${encodedUrl}&text=${titleToShare}`,
+      href: `https://t.me/share/url?url=${encodedUrl}&text=${titleToShare}`, // ❌ Убрали image
       icon: "/social-icons/telegram.svg",
     },
     {
@@ -33,20 +35,11 @@ const ShareButtons: React.FC<ShareButtonsProps> = ({ open, onClose, shareUrl, ti
     },
     {
       name: "VK",
-      href: `https://vk.com/share.php?url=${encodedUrl}`,
+      href: `https://vk.com/share.php?url=${encodedUrl}&title=${titleToShare}`,
       icon: "/social-icons/vk.svg",
     },
-    {
-      name: "Viber",
-      href: `viber://forward?text=${titleToShare} ${encodedUrl}`,
-      icon: "/social-icons/viber.svg",
-    },
-    {
-      name: "Одноклассники",
-      href: `https://connect.ok.ru/offer?url=${encodedUrl}`,
-      icon: "/social-icons/ok.svg",
-    },
   ];
+  
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">

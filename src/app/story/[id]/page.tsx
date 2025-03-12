@@ -1,8 +1,8 @@
 "use client";
 
+import Head from "next/head";
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { notFound } from "next/navigation";
+import { useParams, notFound } from "next/navigation";
 import CategoryNavigation from "@/components/CategoryNavigation/CategoryNavigation";
 import NewsHeader from "@/components/NewsHeader/NewsHeader";
 import NewsMainContent from "@/components/NewsMainContent/NewsMainContent";
@@ -59,19 +59,13 @@ const StoryDetailPage = () => {
         setStory(data);
         setSelectedArticle(data.news_articles[0] || null);
 
-        console.log("Fetched story:", data);
-
-        // Загружаем связанные истории
         const relatedRes = await fetch(
           `https://zn.by/api/v1/stories/?category=${data.category.id}&page_size=5`
         );
+        if (!relatedRes.ok) throw new Error("Ошибка загрузки связанных сюжетов");
         const relatedData = await relatedRes.json();
-        console.log("Fetched related stories:", relatedData.results);
 
-        // ✅ Проверяем, изменились ли данные перед обновлением состояния
-        if (JSON.stringify(relatedStories) !== JSON.stringify(relatedData.results)) {
-          setRelatedStories(relatedData.results.filter((item: Story) => item.id !== data.id));
-        }
+        setRelatedStories(relatedData.results.filter((item: Story) => item.id !== data.id));
       } catch (error) {
         console.error("Ошибка загрузки:", error);
         setError(true);
@@ -86,65 +80,80 @@ const StoryDetailPage = () => {
     }
   }, [id]);
 
-  if (error) return notFound(); // Перенаправление на 404
+  if (error) return notFound();
+
+  const pageTitle = selectedArticle?.title || "Новость";
+  const pageDescription =
+    selectedArticle?.summary || selectedArticle?.description || "Читайте свежие новости на Zn.by";
+  const pageImage = story?.main_images?.[0] || "/default-news-image.jpg";
+  const pageUrl = `https://zn.by/story/${id}`;
 
   return (
-    <main className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 mt-6">
-      {/* Слайдер категорий */}
-      <div className="mb-6">
-        <CategoryNavigation />
-      </div>
+    <>
+      <Head>
+        <title>{pageTitle} | Zn.by</title>
+        <meta name="description" content={pageDescription} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:image" content={pageImage} />
+        <meta property="og:url" content={pageUrl} />
+        <meta property="og:type" content="article" />
+        <meta property="og:site_name" content="Zn.by" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={pageDescription} />
+        <meta name="twitter:image" content={pageImage} />
+      </Head>
 
-      {/* Основная сетка контента */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {/* Основной контент */}
-        <div className="md:col-span-3">
-          {loading ? (
-            <p className="text-center text-gray-500">Загрузка...</p>
-          ) : (
-            story && selectedArticle && (
-              <>
-                {/* Заголовок новости */}
-                <NewsHeader
-                  source={selectedArticle.source}
-                  creationDate={selectedArticle.publication_at}
-                  title={selectedArticle.title}
-                  shareUrl={`https://zn.by/story/${id}`}
-                />
-
-                {/* Основное содержание */}
-                <NewsMainContent
-                  mainImages={story.main_images || []}
-                  text={selectedArticle.summary || selectedArticle.description || ""}
-                  url={selectedArticle.url}
-                  articleId={Number(id)}
-                  loading={loading}
-                />
-
-                {/* Связанные статьи */}
-                {story.news_articles.length > 1 && (
-                  <RelatedArticles
-                    articles={story.news_articles.filter(
-                      (article) => article.id !== selectedArticle.id
-                    )}
-                    onArticleClick={setSelectedArticle}
-                    selectedArticle={selectedArticle}
-                  />
-                )}
-              </>
-            )
-          )}
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 mt-6">
+        <div className="mb-6">
+          <CategoryNavigation />
         </div>
 
-        {/* Боковая панель с новостями */}
-        <aside className="hidden md:block">
-          {/* ✅ Оптимизированный Sidebar */}
-          {!loading && relatedStories.length > 0 && (
-            <RelevantSideBar excludeId={Number(id)} relatedStories={relatedStories} />
-          )}
-        </aside>
-      </div>
-    </main>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="md:col-span-3">
+            {loading ? (
+              <p className="text-center text-gray-500">Загрузка...</p>
+            ) : (
+              story && selectedArticle && (
+                <>
+                  <NewsHeader
+                    source={selectedArticle.source}
+                    creationDate={selectedArticle.publication_at}
+                    title={selectedArticle.title}
+                    shareUrl={pageUrl}
+                  />
+
+                  <NewsMainContent
+                    mainImages={story.main_images || []}
+                    text={selectedArticle.summary || selectedArticle.description || ""}
+                    url={selectedArticle.url}
+                    articleId={Number(id)}
+                    loading={loading}
+                  />
+
+                  {story.news_articles.length > 1 && (
+                    <RelatedArticles
+                      articles={story.news_articles.filter(
+                        (article) => article.id !== selectedArticle?.id
+                      )}
+                      onArticleClick={(article) => setSelectedArticle(article)}
+                      selectedArticle={selectedArticle}
+                    />
+                  )}
+                </>
+              )
+            )}
+          </div>
+
+          <aside className="hidden md:block">
+            {!loading && Array.isArray(relatedStories) && relatedStories.length > 0 && (
+              <RelevantSideBar excludeId={Number(id)} relatedStories={relatedStories} />
+            )}
+          </aside>
+        </div>
+      </main>
+    </>
   );
 };
 

@@ -1,6 +1,4 @@
-"use client";
-
-import React from "react";
+import React, { useRef } from "react";
 import Image from "next/image";
 import DynamicTimeDisplay from "@/components/DynamicTimeDisplay/DynamicTimeDisplay";
 import DropdownButton from "@/components/DropdownButton/DropdownButton";
@@ -19,52 +17,40 @@ interface NewsHeaderProps {
 }
 
 const getValidImageUrl = (url: string | undefined) => {
-  if (!url) return "/placeholder.png"; // Заглушка, если URL отсутствует
-  return url.startsWith("http") ? url : `https://zn.by${url}`; // Делаем URL абсолютным
+  if (!url) return "/placeholder.png";
+  return url.startsWith("http") ? url : `https://zn.by${url}`;
 };
 
-const NewsHeader: React.FC<NewsHeaderProps> = ({
-  source,
-  creationDate,
-  title,
-  shareUrl,
-}) => {
+const NewsHeader: React.FC<NewsHeaderProps> = ({ source, creationDate, title, shareUrl }) => {
+  const contentRef = useRef<HTMLDivElement>(null); // ✅ Создаем ref
+
   return (
-    <div className="border-b border-gray-200 dark:border-gray-700 pb-3">
-      {/* Верхняя строка: Источник и кнопка "Поделиться" */}
+    <div ref={contentRef} className="border-b border-gray-200 dark:border-gray-700 pb-3">
       <div className="flex justify-between items-center mb-2">
         <div className="flex items-center">
-          {/* Фавиконка источника */}
           {source.favicon && (
             <img
-            src={getValidImageUrl(source?.favicon)}
-            alt={source?.name || "Источник"}
-            width={20}
-            height={20}
-            className="w-6 h-6 rounded-full border border-gray-300 dark:border-gray-600"
-          />
-          
+              src={getValidImageUrl(source.favicon)}
+              alt={source.name || "Источник"}
+              width={20}
+              height={20}
+              className="w-6 h-6 rounded-full border border-gray-300 dark:border-gray-600"
+              onError={(e) => (e.currentTarget.src = "/placeholder.png")} // ✅ Заглушка при ошибке загрузки
+            />
           )}
-
-          {/* Название источника */}
           <div className="source_name pl-3">
-            <span className="source_name text-sm font-semibold text-gray-800 dark:text-gray-200">
+            <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
               {source.name}
             </span>
           </div>
-          
         </div>
 
-        {/* Кнопка "Поделиться" */}
-        <DropdownButton shareUrl={shareUrl} title={title} />
+        {/* ✅ Передаем ссылку на контент для рендера */}
+        <DropdownButton shareUrl={shareUrl} title={title} elementRef={contentRef} />
       </div>
 
-      {/* Заголовок новости */}
-      <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
-        {title}
-      </h1>
+      <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">{title}</h1>
 
-      {/* Дата публикации */}
       <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mt-1">
         <DynamicTimeDisplay creationDate={creationDate} />
       </p>
