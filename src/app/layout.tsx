@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import Header from "@/components/header/Header";
 import ScrollToTop from "@/components/ScrollToTop/ScrollToTop";
+import { UserProvider } from "@/context/UserContext";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -23,12 +24,13 @@ export default function RootLayout({
       <head>
         <title>Новости Беларуси</title>
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <Header />
-        <main className="container mx-auto px-4">{children}</main>
-        <ScrollToTop />
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        {/* ✅ Оборачиваем всё в `UserProvider` */}
+        <UserProvider>
+          <Header />
+          <main className="container mx-auto px-4">{children}</main>
+          <ScrollToTop />
+        </UserProvider>
       </body>
     </html>
   );

@@ -1,85 +1,110 @@
+"use client";
+
 import React, { useState } from "react";
+import Image from "next/image";
+import { Dialog } from "@headlessui/react";
+import { X, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface ImageSliderModalProps {
   images: string[];
 }
 
 const ImageSliderModal: React.FC<ImageSliderModalProps> = ({ images }) => {
-  const [selectedImage, setSelectedImage] = useState(images[0]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [open, setOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(0);
 
-  if (!images.length) return null;
+  const handleOpen = (index: number) => {
+    setSelectedIndex(index);
+    setIsOpen(true);
+  };
+
+  const handlePrevious = () => {
+    setSelectedIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
 
   const handleNext = () => {
-    const newIndex = (currentIndex + 1) % images.length;
-    setSelectedImage(images[newIndex]);
-    setCurrentIndex(newIndex);
+    setSelectedIndex((prev) => (prev + 1) % images.length);
   };
 
-  const handlePrev = () => {
-    const newIndex = (currentIndex - 1 + images.length) % images.length;
-    setSelectedImage(images[newIndex]);
-    setCurrentIndex(newIndex);
+  // Определяем количество видимых изображений в зависимости от ширины экрана
+  const getVisibleImagesCount = () => {
+    if (typeof window !== "undefined") {
+      if (window.innerWidth < 550) return 1;
+      if (window.innerWidth < 1150) return 2;
+    }
+    return 3;
   };
+
+  const visibleImagesCount = getVisibleImagesCount();
+  const remainingImages = images.length - visibleImagesCount;
 
   return (
-    <div className="relative">
-      <div className="flex space-x-2">
-        {images.slice(0, 3).map((image, index) => (
-          <img
-            key={index}
-            src={image}
-            alt="Thumbnail"
-            className="w-20 h-20 object-cover rounded-md cursor-pointer"
-            onClick={() => {
-              setSelectedImage(image);
-              setCurrentIndex(index);
-              setOpen(true);
-            }}
-          />
-        ))}
-        {images.length > 3 && (
-          <div
-            className="w-20 h-20 flex items-center justify-center bg-gray-500 text-white rounded-md cursor-pointer"
-            onClick={() => setOpen(true)}
-          >
-            +{images.length - 3}
-          </div>
-        )}
+    <>
+      {/* Галерея миниатюр */}
+      <div className="flex gap-2 mt-4">
+        {images.slice(0, visibleImagesCount).map((image, index) => {
+          const isLastVisible = index === visibleImagesCount - 1;
+
+          return (
+            <div
+              key={index}
+              className="relative w-full h-36 rounded-lg overflow-hidden cursor-pointer"
+              onClick={() => handleOpen(index)}
+            >
+              <Image
+                src={image}
+                alt={`Фото ${index + 1}`}
+                layout="fill"
+                objectFit="cover"
+                className="rounded-lg"
+              />
+              {isLastVisible && remainingImages > 0 && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white font-bold text-lg">
+                  +{remainingImages} фото
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
 
-      {/* Модальное окно */}
-      {open && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50">
-          <div className="relative w-11/12 md:w-2/3 lg:w-1/2">
+      {/* Модальное окно для просмотра изображений */}
+      <Dialog open={isOpen} onClose={() => setIsOpen(false)} className="relative z-50">
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center">
+          <Dialog.Panel className="relative w-full max-w-4xl p-4">
             <button
-              className="absolute top-2 right-2 text-white text-lg"
-              onClick={() => setOpen(false)}
+              className="absolute top-2 right-2 text-white bg-gray-900 p-2 rounded-full"
+              onClick={() => setIsOpen(false)}
             >
-              ✕
+              <X size={24} />
             </button>
-            <img
-              src={selectedImage}
-              alt="Selected"
-              className="w-full max-h-[80vh] object-contain rounded-md"
+
+            {/* Навигационные кнопки */}
+            <button
+              className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-gray-900 p-2 rounded-full text-white"
+              onClick={handlePrevious}
+            >
+              <ChevronLeft size={24} />
+            </button>
+
+            <Image
+              src={images[selectedIndex]}
+              alt={`Фото ${selectedIndex + 1}`}
+              width={800}
+              height={500}
+              className="rounded-lg mx-auto"
             />
+
             <button
-              className="absolute left-2 top-1/2 transform -translate-y-1/2 text-white"
-              onClick={handlePrev}
-            >
-              ◀
-            </button>
-            <button
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white"
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gray-900 p-2 rounded-full text-white"
               onClick={handleNext}
             >
-              ▶
+              <ChevronRight size={24} />
             </button>
-          </div>
+          </Dialog.Panel>
         </div>
-      )}
-    </div>
+      </Dialog>
+    </>
   );
 };
 
