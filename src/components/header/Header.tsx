@@ -2,14 +2,19 @@
 
 import React, { useState, useEffect } from "react";
 import ThemeSwitcher from "./ThemeSwitcher"; // Импортируем компонент ThemeSwitcher
+import AuthModal from "@/components/Auth/AuthModal";
 import Logo from "./Logo";
 import WeatherAndCurrencies from "./WeatherAndCurrencies";
 import { UserIcon } from '@heroicons/react/24/solid';
+import { useUser } from "@/context/UserContext";
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';// Импортируем иконку поиска
 import Link from "next/link";
 
 const Header = () => {
   const [theme, setTheme] = useState<string>('light'); // Состояние для темы
+
+  const { user } = useUser();
+  const [isAuthModalOpen, setAuthModalOpen] = useState(false);
 
   // Проверяем, какая тема установлена при первом рендере
   useEffect(() => {
@@ -52,9 +57,12 @@ const Header = () => {
             <ThemeSwitcher theme={theme} toggleTheme={toggleTheme} />
             
             {/* Иконка пользователя */}
-            <button className="p-2 rounded-full bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-500">
-              <UserIcon className="w-6 h-6" />
-            </button>
+            <button
+            className="p-2 rounded-full bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-500"
+            onClick={() => setAuthModalOpen(true)}
+          >
+            <UserIcon className="w-6 h-6" />
+          </button>
           </div>
         </div>
 
@@ -63,6 +71,8 @@ const Header = () => {
           <WeatherAndCurrencies />
         </div>
       </div>
+      {/* Модальное окно авторизации */}
+      {isAuthModalOpen && <AuthModal onClose={() => setAuthModalOpen(false)} />}
     </header>
   );
 };
