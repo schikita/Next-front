@@ -48,35 +48,49 @@ export const refreshAccessToken = async (): Promise<string> => {
 
   if (!refreshToken) {
     console.warn("⚠️ Нет refresh-токена, разлогиниваем пользователя...");
-    deleteCookie("access-token");
-    deleteCookie("refresh-token");
+    logoutUser();
     throw new Error("Нет refresh-токена");
   }
 
   console.log("📤 Отправляем refresh-токен:", refreshToken);
 
-  const response = await fetch(`${BASE_URL}/auth/token/refresh/`, {
-    method: "POST",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ refresh: refreshToken }),
-  });
+  let response, data;
+  try {
+    response = await fetch(`${BASE_URL}/auth/token/refresh/`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh: refreshToken }),
+    });
 
-  const data = await response.json();
-  console.log("📥 Ответ сервера:", data);
-
-  if (!response.ok) {
-    console.error("❌ Ошибка обновления токена:", data);
-    deleteCookie("access-token");
-    deleteCookie("refresh-token");
-    throw new Error("Не удалось обновить токен");
+    if (response.headers.get("content-type")?.includes("application/json")) {
+      data = await response.json();
+    } else {
+      console.error("⚠️ Некорректный ответ сервера, не JSON");
+      throw new Error("Сервер вернул некорректный ответ");
+    }
+  } catch (error) {
+    console.error("❌ Ошибка при обновлении токена:", error);
+    logoutUser();
+    throw new Error("Ошибка обновления токена");
   }
 
-  setCookie("access-token", data.access, { secure: true, sameSite: "Lax", path: "/" });
+  if (!response.ok) {
+    console.error("❌ Ошибка обновления токена:", response.status, data);
+    if (response.status === 401) {
+      console.warn("⚠️ Refresh-токен истёк или недействителен, разлогиниваем...");
+      logoutUser();
+    }
+    throw new Error(data?.detail || "Не удалось обновить токен");
+  }
+
   console.log("✅ Новый access-токен получен:", data.access);
+  setCookie("access-token", data.access, { secure: true, sameSite: "lax", path: "/" });
 
   return data.access;
 };
+
+
 
 
 /** 🔹 Получение данных пользователя */
@@ -89,6 +103,7 @@ export async function getUser() {
       accessToken = await refreshAccessToken();
     } catch (error) {
       console.error("❌ Ошибка обновления токена:", error);
+      logoutUser();
       throw new Error("Ошибка загрузки пользователя (нет токена)");
     }
   }
@@ -103,9 +118,15 @@ export async function getUser() {
   });
 
   if (response.status === 401) {
-    console.warn("⚠️ Access-токен истек, пробуем обновить...");
-    accessToken = await refreshAccessToken();
-    return getUser(); // Повторяем запрос
+    console.warn("⚠️ Access-токен истёк, пробуем обновить...");
+    try {
+      accessToken = await refreshAccessToken();
+      return getUser(); // Повторяем запрос один раз
+    } catch (error) {
+      console.error("❌ Ошибка обновления токена, разлогиниваем:", error);
+      logoutUser();
+      throw new Error("Ошибка загрузки пользователя");
+    }
   }
 
   if (!response.ok) {
@@ -114,30 +135,25 @@ export async function getUser() {
   }
 
   return response.json();
-};
+}
+
 
 /** 🔹 Выход из аккаунта */
 export const logoutUser = async () => {
-  const accessToken = getCookie("access-token");
-
-  if (!accessToken) {
-    console.warn("⚠️ Токен отсутствует, пользователь уже разлогинен");
-    return;
-  }
+  console.log("🔹 Разлогиниваем пользователя...");
+  deleteCookie("access-token");
+  deleteCookie("refresh-token");
 
   try {
     const response = await fetch(`${BASE_URL}/auth/logout/`, {
       method: "POST",
-      headers: { "Authorization": `Bearer ${accessToken}` },
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
     });
 
     if (!response.ok) {
-      console.error("❌ Ошибка выхода из аккаунта:", await response.text());
+      console.warn("⚠️ Ошибка при выходе:", await response.text());
     }
-
-    deleteCookie("access-token");
-    deleteCookie("refresh-token");
-    console.log("✅ Пользователь вышел из системы");
   } catch (error) {
     console.error("❌ Ошибка при выходе из аккаунта:", error);
   }
