@@ -6,8 +6,10 @@ import { getCookie } from "cookies-next";
 
 interface User {
   id: number;
-  name: string;
+  username: string;
   email: string;
+  first_name?: string;
+  last_name?: string;
   avatar?: string;
 }
 
@@ -15,7 +17,7 @@ interface UserContextType {
   user: User | null;
   isLoading: boolean;
   login: (userData: User) => void;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -24,14 +26,16 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+
+  
   useEffect(() => {
     const checkUser = async () => {
       setIsLoading(true);
       try {
-        let accessToken: string | undefined = getCookie("access-token")?.toString();
+        let accessToken: string | null = getCookie("access-token")?.toString() || null;
         if (!accessToken) {
           console.warn("⚠️ Нет access-токена, пробуем обновить...");
-          accessToken = await refreshAccessToken() || undefined; // ✅ Исправлено
+          accessToken = await refreshAccessToken();
         }
 
         if (!accessToken) {
@@ -68,7 +72,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
   };
 
-  return <UserContext.Provider value={{ user, isLoading, login, logout }}>{children}</UserContext.Provider>;
+  return (
+    <UserContext.Provider value={{ user, isLoading, login, logout }}>
+      {children}
+    </UserContext.Provider>
+  );
 };
 
 export const useUser = () => {

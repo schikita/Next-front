@@ -2,44 +2,48 @@
 
 import { useState, useEffect } from "react";
 import { useUser } from "@/context/UserContext";
+import { useRouter } from "next/navigation"; // Импортируем useRouter
 import AuthButton from "../Auth/AuthButton";
 import UserMenu from "../Auth/UserMenu";
 
 const UserPanel = () => {
   const { user, isLoading, logout } = useUser();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [isAvatarValid, setIsAvatarValid] = useState(true);
+  const [avatar, setAvatar] = useState<string | null>(null);
+  const router = useRouter(); // Используем useRouter для перенаправления
 
   // Проверка, есть ли пользователь
   const userData = user || null;
 
-  // URL аватарки
+  // Формирование URL аватарки
   const avatarSrc = userData?.avatar
-    ? userData.avatar.startsWith("http")
-      ? decodeURIComponent(userData.avatar)
-      : `https://example.com${decodeURIComponent(userData.avatar)}`
+    ? `https://zn.by/${userData.avatar.replace(/^\/+/, "")}` // Убираем ведущие слэши, если они есть
     : null;
 
-  // Проверка доступности аватара
   useEffect(() => {
     if (avatarSrc) {
-      const img = new Image();
-      img.src = avatarSrc;
-      img.onload = () => setIsAvatarValid(true);
-      img.onerror = () => setIsAvatarValid(false);
+      setAvatar(avatarSrc);
     }
   }, [avatarSrc]);
 
-  const finalAvatarSrc = isAvatarValid ? avatarSrc : null;
-
   // Генерация инициалов из `name`
   const getInitials = () => {
-    if (!userData?.name) return "?";
-    const nameParts = userData.name.split(" ");
+    if (!userData?.first_name) return "?";
+    const nameParts = userData.first_name.split(" ");
     return nameParts
       .slice(0, 2) // Берем первые два слова (например, "Милош Новак")
       .map((word) => word[0]?.toUpperCase() || "")
       .join("");
+  };
+
+  // Обработчик выхода с перенаправлением на главную
+  const handleLogout = async () => {
+    try {
+      await logout(); // Выполняем выход
+      router.push("/"); // Перенаправляем на главную страницу
+    } catch (error) {
+      console.error("Ошибка при выходе:", error);
+    }
   };
 
   if (isLoading) {
@@ -49,10 +53,10 @@ const UserPanel = () => {
   return userData ? (
     <div className="relative">
       <button onClick={() => setMenuOpen(!menuOpen)} className="focus:outline-none">
-        {finalAvatarSrc ? (
+        {avatar ? (
           <img
-            src={finalAvatarSrc}
-            alt={userData.name || "Аватар"}
+            src={avatar}
+            alt={userData.first_name || "Аватар"}
             className="w-9 h-9 rounded-full object-cover"
           />
         ) : (
@@ -61,7 +65,7 @@ const UserPanel = () => {
           </div>
         )}
       </button>
-      {menuOpen && <UserMenu closeMenu={() => setMenuOpen(false)} logout={logout} />}
+      {menuOpen && <UserMenu closeMenu={() => setMenuOpen(false)} logout={handleLogout} />} {/* Изменили на handleLogout */}
     </div>
   ) : (
     <AuthButton />

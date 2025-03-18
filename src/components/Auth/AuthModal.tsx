@@ -1,18 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { requestAuthCode, verifyAuthCode } from "@/lib/api";
+import { useUser } from "@/context/UserContext";
 
 const AuthModal = ({ onClose }: { onClose: () => void }) => {
   const router = useRouter();
+  const { login } = useUser();
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Отправка email
+  const modalRef = useRef<HTMLDivElement | null>(null); // Создаем ref для модального окна
+
+  // Обработчик клика вне модального окна
+  const handleClickOutside = (e: MouseEvent) => {
+    if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+      onClose(); // Закрываем модальное окно, если клик был вне
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("click", handleClickOutside); // Добавляем слушатель кликов
+    return () => {
+      document.removeEventListener("click", handleClickOutside); // Убираем слушатель при размонтировании
+    };
+  }, []);
+
   const handleEmailSubmit = async () => {
     setLoading(true);
     setError("");
@@ -27,26 +44,27 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
     }
   };
 
-  // Проверка кода
   const handleCodeSubmit = async () => {
     setLoading(true);
     setError("");
 
     try {
       const result = await verifyAuthCode(email, code);
+
       if (!result) {
-        setError("Неверный код подтверждения");
+        setError("⚠️ Неверный код подтверждения, попробуйте снова.");
         return;
       }
 
-      console.log("✅ Токены получены:", result);
-      
       document.cookie = `access-token=${result["access-token"]}; path=/`;
       document.cookie = `refresh-token=${result["refresh-token"]}; path=/`;
 
+      login(result.user); // Обновляем контекст пользователя
+
+      onClose();
       router.push("/profile");
-      onClose(); // Закрытие модального окна после успешного входа
-    } catch {
+    } catch (error) {
+      console.error("❌ Ошибка верификации кода:", error);
       setError("Ошибка верификации кода");
     } finally {
       setLoading(false);
@@ -55,8 +73,13 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-96 relative">
-        <button className="absolute top-4 right-4 text-gray-500" onClick={onClose}>✕</button>
+      <div
+        ref={modalRef} // Привязываем ref к модальному окну
+        className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-96 relative"
+      >
+        <button className="absolute top-4 right-4 text-gray-500" onClick={onClose}>
+          ✕
+        </button>
 
         {step === 1 ? (
           <>
