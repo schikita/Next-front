@@ -3,11 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { requestAuthCode, verifyAuthCode } from "@/lib/api";
-import { useUser } from "@/context/UserContext"; // Импортируем контекст пользователя
 
 const AuthModal = ({ onClose }: { onClose: () => void }) => {
   const router = useRouter();
-  const { login } = useUser(); // Получаем функцию login из контекста пользователя
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
@@ -31,14 +29,13 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
 
   // Проверка кода
   const handleCodeSubmit = async () => {
-    setLoading(true); // Исправлено setIsLoading → setLoading
+    setLoading(true);
     setError("");
 
     try {
       const result = await verifyAuthCode(email, code);
-
       if (!result) {
-        setError("Неверный код подтверждения, попробуйте снова.");
+        setError("Неверный код подтверждения");
         return;
       }
 
@@ -47,12 +44,10 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
       document.cookie = `access-token=${result["access-token"]}; path=/`;
       document.cookie = `refresh-token=${result["refresh-token"]}; path=/`;
 
-      login(result.user); // Логиним пользователя
-
-      router.push("/profile"); // Перенаправляем на страницу профиля
-    } catch (error) {
-      console.error("❌ Ошибка верификации кода:", error);
-      setError("Ошибка верификации кода. Проверьте данные и попробуйте снова.");
+      router.push("/profile");
+      onClose(); // Закрытие модального окна после успешного входа
+    } catch {
+      setError("Ошибка верификации кода");
     } finally {
       setLoading(false);
     }

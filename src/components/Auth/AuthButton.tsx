@@ -6,7 +6,7 @@ import AuthModal from "@/components/Auth/AuthModal";
 import UserMenu from "@/components/Auth/UserMenu";
 import { useUser } from "@/context/UserContext";
 
-const UserAuthButton = () => {
+const AuthButton = () => {
   const { user } = useUser();
   const [isAuthModalOpen, setAuthModalOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -26,4 +26,4 @@ const UserAuthButton = () => {
   );
 };
 
-export default UserAuthButton;
+export default AuthButton;

@@ -5,6 +5,7 @@ import ThemeSwitcher from "./ThemeSwitcher"; // Импортируем комп�
 import AuthModal from "@/components/Auth/AuthModal";
 import Logo from "./Logo";
 import WeatherAndCurrencies from "./WeatherAndCurrencies";
+import UserPanel from "./UserPanel";
 import { UserIcon } from '@heroicons/react/24/solid';
 import { useUser } from "@/context/UserContext";
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';// Импортируем иконку поиска
@@ -57,12 +58,7 @@ const Header = () => {
             <ThemeSwitcher theme={theme} toggleTheme={toggleTheme} />
             
             {/* Иконка пользователя */}
-            <button
-            className="p-2 rounded-full bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-500"
-            onClick={() => setAuthModalOpen(true)}
-          >
-            <UserIcon className="w-6 h-6" />
-          </button>
+           <UserPanel />
           </div>
         </div>
 

@@ -34,7 +34,7 @@ export const verifyAuthCode = async (email: string, code: string) => {
     console.log("✅ Код подтвержден:", data);
     return data; // Вернем объект с user, access-token и refresh-token
   } catch (error) {
-    console.error("❌ Ошибка верификации кода:", error.message);
+    console.error("❌ Ошибка верификации кода:");
     return null;
   }
 };

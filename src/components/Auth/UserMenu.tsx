@@ -1,47 +1,21 @@
 "use client";
 
-import { useUser } from "@/context/UserContext";
-import { useRouter } from "next/navigation";
+import React from "react";
 
-const UserMenu = ({ onClose }: { onClose: () => void }) => {
-  const { user, logout } = useUser();
-  const router = useRouter();
+interface UserMenuProps {
+  closeMenu: () => void;
+  logout: () => void;
+}
 
-  if (!user) return null;
-
-  // Выход из системы
-  const handleLogout = async () => {
-    try {
-      await fetch("/api/auth/logout/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("access")}`,
-        },
-        body: JSON.stringify({ all_tokens: true }),
-      });
-
-      logout();
-      router.push("/");
-    } catch (err) {
-      console.error("Ошибка при выходе");
-    }
-  };
-
+const UserMenu: React.FC<UserMenuProps> = ({ closeMenu, logout }) => {
   return (
-    <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded-lg shadow-lg py-2">
+    <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg">
       <button
-        className="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 w-full text-left"
         onClick={() => {
-          router.push("/profile");
-          onClose();
+          logout();
+          closeMenu();
         }}
-      >
-        Личный кабинет
-      </button>
-      <button
-        className="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 w-full text-left"
-        onClick={handleLogout}
+        className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
       >
         Выйти
       </button>
