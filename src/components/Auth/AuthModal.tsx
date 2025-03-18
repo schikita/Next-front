@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { requestAuthCode, verifyAuthCode } from "@/lib/api";
+import { useUser } from "@/context/UserContext"; // Импортируем контекст пользователя
 
 const AuthModal = ({ onClose }: { onClose: () => void }) => {
   const router = useRouter();
+  const { login } = useUser(); // Получаем функцию login из контекста пользователя
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
@@ -29,16 +31,28 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
 
   // Проверка кода
   const handleCodeSubmit = async () => {
-    setLoading(true);
+    setLoading(true); // Исправлено setIsLoading → setLoading
     setError("");
 
     try {
-      await verifyAuthCode(email, code);
-      console.log("✅ Код подтвержден, перенаправляем на /profile");
-      onClose();
-      router.push("/profile");
-    } catch {
-      setError("Неверный код");
+      const result = await verifyAuthCode(email, code);
+
+      if (!result) {
+        setError("Неверный код подтверждения, попробуйте снова.");
+        return;
+      }
+
+      console.log("✅ Токены получены:", result);
+      
+      document.cookie = `access-token=${result["access-token"]}; path=/`;
+      document.cookie = `refresh-token=${result["refresh-token"]}; path=/`;
+
+      login(result.user); // Логиним пользователя
+
+      router.push("/profile"); // Перенаправляем на страницу профиля
+    } catch (error) {
+      console.error("❌ Ошибка верификации кода:", error);
+      setError("Ошибка верификации кода. Проверьте данные и попробуйте снова.");
     } finally {
       setLoading(false);
     }
@@ -46,7 +60,7 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-96">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-96 relative">
         <button className="absolute top-4 right-4 text-gray-500" onClick={onClose}>✕</button>
 
         {step === 1 ? (

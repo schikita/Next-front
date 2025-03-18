@@ -1,8 +1,9 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { getUser, refreshAccessToken, logoutUser } from "@/lib/api";
+import { getCookie } from "cookies-next";
 
-// Интерфейс пользователя
 interface User {
   id: number;
   name: string;
@@ -10,7 +11,6 @@ interface User {
   avatar?: string;
 }
 
-// Определяем контекст
 interface UserContextType {
   user: User | null;
   isLoading: boolean;
@@ -18,41 +18,59 @@ interface UserContextType {
   logout: () => void;
 }
 
-// Создаем контекст
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-// Провайдер контекста
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Имитация загрузки пользователя
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setIsLoading(false);
+    const checkUser = async () => {
+      setIsLoading(true);
+      try {
+        let accessToken: string | undefined = getCookie("access-token")?.toString();
+        if (!accessToken) {
+          console.warn("⚠️ Нет access-токена, пробуем обновить...");
+          accessToken = await refreshAccessToken() || undefined; // ✅ Исправлено
+        }
+
+        if (!accessToken) {
+          console.warn("❌ Нет токенов, пользователь не авторизован.");
+          setUser(null);
+          return;
+        }
+
+        const fetchedUser = await getUser();
+        if (fetchedUser) setUser(fetchedUser);
+      } catch (error) {
+        console.error("❌ Ошибка загрузки пользователя:", error);
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkUser();
   }, []);
 
   const login = (userData: User) => {
+    console.log("🔹 Пользователь вошел:", userData);
     setUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData));
   };
 
-  const logout = () => {
+  const logout = async () => {
+    console.log("🔹 Пользователь вышел");
+    try {
+      await logoutUser();
+    } catch (error) {
+      console.error("❌ Ошибка при выходе:", error);
+    }
     setUser(null);
-    localStorage.removeItem("user");
   };
 
-  return (
-    <UserContext.Provider value={{ user, isLoading, login, logout }}>
-      {children}
-    </UserContext.Provider>
-  );
+  return <UserContext.Provider value={{ user, isLoading, login, logout }}>{children}</UserContext.Provider>;
 };
 
-// Хук для использования контекста
 export const useUser = () => {
   const context = useContext(UserContext);
   if (!context) {

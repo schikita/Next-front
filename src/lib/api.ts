@@ -1,6 +1,7 @@
 "use client";
 
 import { setCookie, getCookie, deleteCookie } from "cookies-next";
+import { useRouter } from "next/navigation";
 
 const BASE_URL = "https://zn.by/api";
 
@@ -17,126 +18,110 @@ export const requestAuthCode = async (email: string) => {
 
 /** 🔹 Проверка кода и вход */
 export const verifyAuthCode = async (email: string, code: string) => {
-  const payload = { email: email.trim(), code: code.trim() }; // Убираем пробелы
-  console.log("📤 Отправка данных:", payload);
+  try {
+    const response = await fetch("https://zn.by/api/auth/verify/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, code }),
+    });
 
-  const response = await fetch(`${BASE_URL}/auth/verify/`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
+    const data = await response.json();
 
-  const responseData = await response.json();
+    if (!response.ok) {
+      throw new Error(data.detail || "Ошибка верификации кода");
+    }
 
-  if (!response.ok) {
-    console.error("❌ Ошибка верификации кода:", response.status, responseData);
-    throw new Error("Неверный код");
+    console.log("✅ Код подтвержден:", data);
+    return data; // Вернем объект с user, access-token и refresh-token
+  } catch (error) {
+    console.error("❌ Ошибка верификации кода:", error.message);
+    return null;
   }
-
-  console.log("✅ Токены получены:", responseData);
-
-  setCookie("access-token", responseData.access, { secure: true, sameSite: "lax", path: "/" });
-  setCookie("refresh-token", responseData.refresh, { secure: true, sameSite: "lax", path: "/" });
-
-  return responseData;
 };
 
 
 /** 🔹 Обновление access-токена */
-export const refreshAccessToken = async (): Promise<string> => {
-  const refreshToken = getCookie("refresh-token");
+export const refreshAccessToken = async (): Promise<string | null> => {
+  const refreshToken = getCookie("refresh-token")?.toString();
 
   if (!refreshToken) {
-    console.warn("⚠️ Нет refresh-токена, разлогиниваем пользователя...");
-    logoutUser();
-    throw new Error("Нет refresh-токена");
+    console.warn("⚠️ Нет refresh-токена, пропускаем обновление.");
+    return null;
   }
 
   console.log("📤 Отправляем refresh-токен:", refreshToken);
 
-  let response, data;
   try {
-    response = await fetch(`${BASE_URL}/auth/token/refresh/`, {
+    const response = await fetch(`${BASE_URL}/auth/token/refresh/`, {
       method: "POST",
-      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ refresh: refreshToken }),
     });
 
-    if (response.headers.get("content-type")?.includes("application/json")) {
-      data = await response.json();
-    } else {
-      console.error("⚠️ Некорректный ответ сервера, не JSON");
-      throw new Error("Сервер вернул некорректный ответ");
+    const data = await response.json();
+    if (!response.ok || !data.access) {
+      console.error("❌ Ошибка обновления токена:", response.status, data);
+      if (response.status === 401) {
+        console.warn("⚠️ Refresh-токен истёк, разлогиниваем...");
+        await logoutUser();
+      }
+      return null;
     }
+
+    setCookie("access-token", data.access, { secure: false, sameSite: "lax", path: "/" });
+
+    return data.access;
   } catch (error) {
     console.error("❌ Ошибка при обновлении токена:", error);
-    logoutUser();
-    throw new Error("Ошибка обновления токена");
+    await logoutUser();
+    return null;
   }
-
-  if (!response.ok) {
-    console.error("❌ Ошибка обновления токена:", response.status, data);
-    if (response.status === 401) {
-      console.warn("⚠️ Refresh-токен истёк или недействителен, разлогиниваем...");
-      logoutUser();
-    }
-    throw new Error(data?.detail || "Не удалось обновить токен");
-  }
-
-  console.log("✅ Новый access-токен получен:", data.access);
-  setCookie("access-token", data.access, { secure: true, sameSite: "lax", path: "/" });
-
-  return data.access;
 };
-
-
-
 
 /** 🔹 Получение данных пользователя */
 export async function getUser() {
-  let accessToken = getCookie("access-token");
+  let accessToken: string | null = getCookie("access-token")?.toString() || null;
 
   if (!accessToken) {
-    try {
-      console.warn("⚠️ Нет access-токена, пробуем обновить...");
-      accessToken = await refreshAccessToken();
-    } catch (error) {
-      console.error("❌ Ошибка обновления токена:", error);
-      logoutUser();
-      throw new Error("Ошибка загрузки пользователя (нет токена)");
+    console.warn("⚠️ Нет access-токена, пробуем обновить...");
+    accessToken = await refreshAccessToken();
+    if (!accessToken) {
+      console.warn("❌ Не удалось получить новый токен, пользователь не авторизован.");
+      return null;
     }
   }
 
-  const response = await fetch(`${BASE_URL}/auth/user/`, {
-    method: "GET",
-    credentials: "include",
-    headers: {
-      "Authorization": `Bearer ${accessToken}`,
-      "Content-Type": "application/json",
-    },
-  });
+  try {
+    const response = await fetch(`${BASE_URL}/auth/user/`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+    });
 
-  if (response.status === 401) {
-    console.warn("⚠️ Access-токен истёк, пробуем обновить...");
-    try {
+    if (response.status === 401) {
+      console.warn("⚠️ Access-токен истёк, пробуем обновить...");
       accessToken = await refreshAccessToken();
-      return getUser(); // Повторяем запрос один раз
-    } catch (error) {
-      console.error("❌ Ошибка обновления токена, разлогиниваем:", error);
-      logoutUser();
-      throw new Error("Ошибка загрузки пользователя");
+      if (!accessToken) {
+        console.warn("❌ Не удалось обновить токен, разлогиниваем.");
+        await logoutUser();
+        return null;
+      }
+      return await getUser();
     }
-  }
 
-  if (!response.ok) {
-    console.error(`❌ Ошибка загрузки пользователя: ${response.status}`, await response.text());
-    throw new Error("Ошибка загрузки пользователя");
-  }
+    if (!response.ok) {
+      console.error(`❌ Ошибка загрузки пользователя: ${response.status}`, await response.text());
+      return null;
+    }
 
-  return response.json();
+    return await response.json();
+  } catch (error) {
+    console.error("❌ Ошибка загрузки пользователя:", error);
+    return null;
+  }
 }
-
 
 /** 🔹 Выход из аккаунта */
 export const logoutUser = async () => {
@@ -147,7 +132,6 @@ export const logoutUser = async () => {
   try {
     const response = await fetch(`${BASE_URL}/auth/logout/`, {
       method: "POST",
-      credentials: "include",
       headers: { "Content-Type": "application/json" },
     });
 
