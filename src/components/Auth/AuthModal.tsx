@@ -13,8 +13,9 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [acceptedPolicy, setAcceptedPolicy] = useState(false); // Состояние для чекбокса
 
-  const modalRef = useRef<HTMLDivElement | null>(null); // Создаем ref для модального окна
+  const modalRef = useRef<HTMLDivElement | null>(null);
 
   // Обработчик клика вне модального окна
   const handleClickOutside = (e: MouseEvent) => {
@@ -33,6 +34,12 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
   const handleEmailSubmit = async () => {
     setLoading(true);
     setError("");
+
+    if (!acceptedPolicy) {
+      setError("Вы должны согласиться с политикой обработки данных.");
+      setLoading(false);
+      return;
+    }
 
     try {
       await requestAuthCode(email);
@@ -74,7 +81,7 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
       <div
-        ref={modalRef} // Привязываем ref к модальному окну
+        ref={modalRef}
         className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-96 relative"
       >
         <button className="absolute top-4 right-4 text-gray-500" onClick={onClose}>
@@ -91,13 +98,28 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
+            <div className="flex items-center mt-3">
+              <input
+                type="checkbox"
+                checked={acceptedPolicy}
+                onChange={(e) => setAcceptedPolicy(e.target.checked)}
+                className="mr-2"
+              />
+              <label className="text-sm text-gray-600">
+                Я соглашаюсь с{" "}
+                <a href="/data-processing-policy" className="text-blue-600 hover:underline">
+                  политикой обработки данных
+                </a>
+              </label>
+            </div>
             <button
-              className="w-full bg-blue-500 text-white py-2 rounded mt-3 hover:bg-blue-600 transition"
-              onClick={handleEmailSubmit}
-              disabled={loading}
-            >
-              {loading ? "Отправка..." : "Запросить код"}
-            </button>
+  className={`w-full py-2 rounded mt-3 transition ${acceptedPolicy ? "bg-blue-500 hover:bg-blue-600" : "bg-gray-400 cursor-not-allowed"}`}
+  onClick={handleEmailSubmit}
+  disabled={!acceptedPolicy || loading}
+>
+  {loading ? "Отправка..." : "Запросить код"}
+</button>
+
           </>
         ) : (
           <>

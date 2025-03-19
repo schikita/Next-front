@@ -1,8 +1,9 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import Header from "@/components/header/Header";
-import ScrollToTop from "@/components/ScrollToTop/ScrollToTop";
 import { UserProvider } from "@/context/UserContext";
 import "./globals.css";
+import Footer from "@/components/footer/Footer";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,10 +27,10 @@ export default function RootLayout({
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {/* ✅ Оборачиваем всё в `UserProvider` */}
-        <UserProvider>
+        <UserProvider>         
           <Header />
           <main className="container mx-auto px-4">{children}</main>
-          <ScrollToTop />
+          <Footer />
         </UserProvider>
       </body>
     </html>
