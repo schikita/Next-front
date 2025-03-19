@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { requestAuthCode, verifyAuthCode } from "@/lib/api";
 import { useUser } from "@/context/UserContext";
+import Link from "next/link";
 
 const AuthModal = ({ onClose }: { onClose: () => void }) => {
   const router = useRouter();
@@ -14,6 +15,7 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [acceptedPolicy, setAcceptedPolicy] = useState(false); // Состояние для чекбокса
+
 
   const modalRef = useRef<HTMLDivElement | null>(null);
 
@@ -78,6 +80,10 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
     }
   };
 
+  const handlePolicyLinkClick = () => {
+    onClose();
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
       <div
@@ -107,9 +113,9 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
               />
               <label className="text-sm text-gray-600">
                 Я соглашаюсь с{" "}
-                <a href="/data-processing-policy" className="text-blue-600 hover:underline">
+                <Link href="/data-processing-policy" className="text-blue-600 hover:underline" onClick={handlePolicyLinkClick}>
                   политикой обработки данных
-                </a>
+                </Link>
               </label>
             </div>
             <button

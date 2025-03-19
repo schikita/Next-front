@@ -12,10 +12,12 @@
   --foreground: #ffffff;
 }
 
+/* Для футера и всего контента */
 html, body {
-  width: 100%;
   height: 100%;
-  overflow-x: hidden;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 html {
@@ -23,8 +25,27 @@ html {
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  transition: background 0.3s, color 0.3s;
-  overflow: auto;
+  flex: 1;
+}
+
+main {
+  flex: 1;
+  padding-bottom: 50px; /* Отступ снизу для футера */
+}
+
+footer {
+  margin-top: auto; /* Плавно размещаем футер внизу */
+  padding: 20px;  
+  box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+footer a {
+  text-decoration: none;
+  color: #1d4ed8;
+  transition: color 0.3s ease;
+}
+
+footer a:hover {
+  color: #3b82f6;
 }
