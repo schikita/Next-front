@@ -111,7 +111,7 @@ const CategorySlider: React.FC<CategorySliderProps> = ({
           <button
           key={category.id}
           onClick={() => onSelectCategory(category.id)}
-          className={`inline-flex items-center justify-center text-sm font-semibold rounded-2xl border-2 shadow-sm transition-all whitespace-nowrap px-4 py-2
+          className={`inline-flex items-center justify-center text-sm font-semibold rounded-2xl border-2 shadow-sm transition-all whitespace-nowrap px-4 py-1
             ${
               selectedCategory === category.id
                 ? "border-4 border-black dark:border-white bg-gray-200 dark:bg-gray-800 text-black dark:text-white"

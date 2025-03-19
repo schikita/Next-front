@@ -43,32 +43,32 @@ const WeatherAndCurrencies = () => {
   }, []);
 
   return (
-    <div className="flex items-center justify-between px-4 py-2 pl-20">
+    <div className="flex flex-wrap sm:flex-nowrap justify-between items-center px-4 sm:px-8 py-2">
       {/* Блок с погодой слева */}
       {error ? (
         <span className="text-sm text-red-500">{error}</span>
       ) : (
-        <div className="flex items-center">
+        <div className="flex items-center space-x-2 text-sm sm:text-base">
           {weather.icon && (
-  <img
-    src={weather.icon}
-    alt="weather icon"
-    className="w-6 h-6 mr-2 dark:invert"
-  />
-)}
-          <span className="text-sm text-gray-800 dark:text-white">
+            <img
+              src={weather.icon}
+              alt="weather icon"
+              className="w-6 h-6 mr-2 dark:invert"
+            />
+          )}
+          <span className="text-gray-800 dark:text-white">
             {weather.city}: {weather.temperature}°C
           </span>
         </div>
       )}
 
       {/* Блок с курсами валют справа */}
-      <div className="current-rate flex items-center space-x-5 pr-20">
+      <div className="flex flex-wrap items-center space-x-4 sm:space-x-5 mt-2 sm:mt-0">
         {currencyRates.length === 0 ? (
           <span className="text-sm text-gray-500 dark:text-gray-300">Загрузка курсов...</span>
         ) : (
-          currencyRates.map((rate) => (
-            <div key={rate.currency} className="flex items-center space-x-2 text-sm text-gray-800 dark:text-white">
+          currencyRates.slice(0, 3).map((rate) => (  // Ограничиваем отображение до 3 валют
+            <div key={rate.currency} className="flex items-center space-x-2 text-sm sm:text-base text-gray-800 dark:text-white">
               {rate.currency === "USD" && <BsCurrencyDollar className="w-4 h-4" />}
               {rate.currency === "EUR" && <BsCurrencyEuro className="w-4 h-4" />}
               {rate.currency === "RUB" && <BsCurrencyRupee className="w-4 h-4" />}

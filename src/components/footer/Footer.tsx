@@ -1,3 +1,4 @@
+// Footer.tsx
 "use client";
 
 import { useEffect } from "react";
@@ -5,7 +6,6 @@ import Link from "next/link";
 import Logo from "../header/Logo";
 
 const Footer = () => {
-
   const handleLinkClick = () => {
     window.scrollTo(0, 0); // Прокручиваем страницу в верх
   };
@@ -22,7 +22,6 @@ const Footer = () => {
               <Link 
                 href="/privacy-policy"
                 className="relative group text-gray-500 dark:text-gray-400 transition-colors duration-300 hover:text-blue-500"
-                
               >
                 Политика конфиденциальности
                 <span className="absolute left-0 -bottom-1 w-full h-0.5 bg-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-in-out"></span>

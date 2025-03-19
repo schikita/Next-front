@@ -1,0 +1,12 @@
+/* storyStyle.css */
+
+/* Убираем подчеркивание при наведении на заголовок */
+.story-card-title:hover {
+    text-decoration: none;
+  }
+  
+  /* Убираем подчеркивание при наведении на описание */
+  .story-card-summary:hover {
+    text-decoration: none;
+  }
+  

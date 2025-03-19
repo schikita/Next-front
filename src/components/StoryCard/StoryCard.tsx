@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import DynamicTimeDisplay from "@/components/DynamicTimeDisplay/DynamicTimeDisplay";
+import "./storyStyle.css";  // Импортируем файл стилей
 
 interface Story {
   id: number;
@@ -48,14 +49,14 @@ const StoryCard: React.FC<{ story: Story }> = ({ story }) => {
 
         {/* Заголовок (обособленный блок) */}
         <div className="mt-0">
-          <h3 className="text-base font-semibold text-gray-900 dark:text-white group-hover:underline leading-tight">
+          <h3 className="story-card-title text-base font-semibold text-gray-900 dark:text-white leading-tight">
             {story.title}
           </h3>
         </div>
 
         {/* Краткое описание */}
         {story.summary && (
-          <p className="mt-2 text-sm text-gray-700 dark:text-gray-400 line-clamp-3">
+          <p className="story-card-summary mt-2 text-sm text-gray-700 dark:text-gray-400 line-clamp-3">
             {story.summary}
           </p>
         )}

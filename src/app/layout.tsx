@@ -4,7 +4,6 @@ import { UserProvider } from "@/context/UserContext";
 import "./globals.css";
 import Footer from "@/components/footer/Footer";
 
-
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -27,7 +26,7 @@ export default function RootLayout({
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {/* ✅ Оборачиваем всё в `UserProvider` */}
-        <UserProvider>         
+        <UserProvider>
           <Header />
           <main className="container mx-auto px-4">{children}</main>
           <Footer />
