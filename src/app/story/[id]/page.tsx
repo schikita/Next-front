@@ -88,6 +88,12 @@ const StoryDetailPage = () => {
   const pageImage = story?.main_images?.[0] || "/default-news-image.jpg";
   const pageUrl = `https://zn.by/story/${id}`;
 
+  // Обработчик клика на статью для обновления контента и прокрутки страницы вверх
+  const handleArticleClick = (article: NewsArticle) => {
+    setSelectedArticle(article);
+    window.scrollTo({ top: 0, behavior: "smooth" }); // Прокрутка страницы в верх
+  };
+
   return (
     <>
       <Head>
@@ -137,7 +143,7 @@ const StoryDetailPage = () => {
                       articles={story.news_articles.filter(
                         (article) => article.id !== selectedArticle?.id
                       )}
-                      onArticleClick={(article) => setSelectedArticle(article)}
+                      onArticleClick={handleArticleClick} // Используем новый обработчик
                       selectedArticle={selectedArticle}
                     />
                   )}

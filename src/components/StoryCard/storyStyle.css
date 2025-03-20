@@ -10,3 +10,23 @@
     text-decoration: none;
   }
   
+/* Заголовок, адаптированный к ширине контейнера */
+/* Для адаптивных заголовков */
+.story-card-title {
+  font-size: clamp(0.rem, 3vw, 1.25rem); /* Динамическое изменение шрифта */
+  line-height: 1.2;
+  white-space: normal; /* Разрешаем перенос текста */
+  word-wrap: break-word; /* Перенос длинных слов */
+}
+
+/* Для кратких описаний с многоточием */
+.story-card-summary {
+  font-size: 0.875rem; /* Размер шрифта */
+  color: #4b5563; /* Цвет текста */
+  line-height: 1.5;
+  display: -webkit-box; /* Для ограничения количества строк */
+  overflow: hidden; /* Скрывает текст, который не вмещается */
+  -webkit-box-orient: vertical; /* Ориентируем строки вертикально */
+  text-overflow: ellipsis; /* Добавляем многоточие */
+  -webkit-line-clamp: 3; /* Ограничиваем три строки текста */
+}

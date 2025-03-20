@@ -1,4 +1,4 @@
-"use client";
+'use client'; // Для клиентского компонента
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname, useParams } from "next/navigation";
@@ -71,51 +71,52 @@ const CategoryNavigation = () => {
   };
 
   return (
-    <div className="relative max-w-screen-lg mx-auto px-4 sm:px-6 md:px-8">
-      <div className="relative flex items-center">
-        {/* Левая стрелка (теперь скрывается, если крайнее левое положение) */}
-        {!isAtStart && (
-          <button
-            onClick={scrollLeft}
-            className="absolute left-0 z-10 bg-white dark:bg-gray-800 shadow-md rounded-full p-2 flex items-center justify-center border border-gray-300 dark:border-gray-600"
-          >
-            <ChevronLeftIcon className="w-6 h-6 text-gray-600 dark:text-gray-400" />
-          </button>
-        )}
+<div className="relative max-w-screen-lg mx-auto px-4 sm:px-6 md:px-8">
+  <div className="relative flex items-center flex-wrap justify-start gap-2">
+    {/* Левая стрелка */}
+    {!isAtStart && (
+      <button
+        onClick={scrollLeft}
+        className="absolute left-0 z-10 bg-white dark:bg-gray-800 shadow-md rounded-full p-2 flex items-center justify-center border border-gray-300 dark:border-gray-600"
+      >
+        <ChevronLeftIcon className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+      </button>
+    )}
 
-        <div
-          ref={containerRef}
-          className="flex space-x-3 overflow-x-auto no-scrollbar scroll-smooth px-12 md:px-4"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-        >
-          {categories.map((category) => (
-            <button
-              key={category.id}
-              onClick={() => handleCategoryClick(category.id)}
-              className={`inline-flex items-center justify-center text-sm font-semibold rounded-2xl border-2 shadow-sm transition-all whitespace-nowrap px-4 py-2
-                ${
-                  activeCategoryId === category.id
-                    ? "border-4 border-black dark:border-white bg-gray-200 dark:bg-gray-800 text-black dark:text-white"
-                    : "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-300 dark:hover:bg-gray-600 hover:bg-gray-100"
-                }`}
-            >
-              {category.name}
-            </button>
-          ))}
-        </div>
-
-        {/* Правая стрелка (всегда показываем) */}
+    <div
+      ref={containerRef}
+      className="flex space-x-2 overflow-x-auto no-scrollbar scroll-smooth"
+      style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+    >
+      {categories.map((category) => (
         <button
-          onClick={scrollRight}
-          className={`absolute right-0 z-10 bg-white dark:bg-gray-800 shadow-md rounded-full p-2 flex items-center justify-center border border-gray-300 dark:border-gray-600 ${
-            isAtEnd ? "opacity-50 cursor-not-allowed" : ""
-          }`}
-          disabled={isAtEnd}
+          key={category.id}
+          onClick={() => handleCategoryClick(category.id)}
+          className={`inline-flex items-center justify-center text-sm font-semibold rounded-2xl border-2 shadow-sm transition-all whitespace-nowrap px-4 py-1
+            ${
+              activeCategoryId === category.id
+                ? "border-4 border-black dark:border-white bg-gray-200 dark:bg-gray-800 text-black dark:text-white"
+                : "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-300 dark:hover:bg-gray-600 hover:bg-gray-100"
+            }`}
         >
-          <ChevronRightIcon className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+          {category.name}
         </button>
-      </div>
+      ))}
     </div>
+
+    {/* Правая стрелка */}
+    <button
+      onClick={scrollRight}
+      className={`absolute right-0 z-10 bg-white dark:bg-gray-800 shadow-md rounded-full p-2 flex items-center justify-center border border-gray-300 dark:border-gray-600 ${
+        isAtEnd ? "opacity-0 pointer-events-none" : ""
+      }`}
+      disabled={isAtEnd}
+    >
+      <ChevronRightIcon className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+    </button>
+  </div>
+</div>
+
   );
 };
 

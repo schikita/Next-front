@@ -50,6 +50,14 @@ footer a:hover {
   color: #3b82f6;
 }
 
+
+@media (max-width: 1290px) {
+  main {
+    padding: 0;
+    padding: 0;
+  }
+}
+
 @media (max-width: 650px) {
   main {
     padding: 0;

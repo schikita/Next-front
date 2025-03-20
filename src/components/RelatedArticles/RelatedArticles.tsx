@@ -34,27 +34,26 @@ export default function RelatedArticles({
   const [visibleCount, setVisibleCount] = useState(5);
 
   return (
-    <div className="mt-4">
+    <div className="mt-2 space-y-2"> {/* space-y-4 для увеличения расстояния между элементами */}
       {filteredArticles.length > 0 && (
         <h3 className="text-lg font-semibold mb-2">ЭТОТ СЮЖЕТ В СМИ:</h3>
       )}
-
+  
       {filteredArticles.slice(0, visibleCount).map((article) => (
         <div
           key={article.id}
           onClick={() => onArticleClick(article)}
-          className="cursor-pointer p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+          className="cursor-pointer p-1 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition-transform transform hover:scale-105" 
         >
           <div className="flex items-center gap-2">
             {article.source.favicon && (
-               <img
-              src={getValidImageUrl(article.source.favicon)}
-              alt={article.source.name || "Источник"}
-              width={20}
-              height={20}
-              className="w-6 h-6 rounded-full border border-gray-300 dark:border-gray-600"
-            />
-              
+              <img
+                src={getValidImageUrl(article.source.favicon)}
+                alt={article.source.name || "Источник"}
+                width={20}
+                height={20}
+                className="w-6 h-6 rounded-full border border-gray-300 dark:border-gray-600"
+              />
             )}
             <span className="text-sm font-medium">{article.source.name}</span>
             <span className="text-xs text-gray-500">{formatTimeAgo(article.publication_at)}</span>
@@ -64,7 +63,7 @@ export default function RelatedArticles({
           </p>
         </div>
       ))}
-
+  
       {visibleCount < filteredArticles.length && (
         <button
           onClick={() => setVisibleCount((prev) => prev + 5)}
@@ -75,7 +74,7 @@ export default function RelatedArticles({
       )}
     </div>
   );
-}
+}  
 
 // Функция форматирования времени (пример)
 function formatTimeAgo(dateString: string) {

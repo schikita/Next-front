@@ -58,23 +58,24 @@ const EditorialPicks = () => {
   }, []);
 
   return (
-    <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
-      <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-        Выбор редакции
-      </h2>
+  <div className="pt-5">
+    
+  <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white text-center">
+    Выбор редакции
+  </h2>
 
-      {loading ? (
-        <p className="text-gray-500 text-center">Загрузка...</p>
-      ) : stories.length === 0 ? (
-        <p className="text-gray-500 text-center">Нет новостей.</p>
-      ) : (
-        <div className="grid grid-cols-1 gap-4">
-          {stories.map((story) => (
-            <StoryCard key={story.id} story={story} isLink={true} />
-          ))}
-        </div>
-      )}
+  {loading ? (
+    <p className="text-gray-500 text-center">Загрузка...</p>
+  ) : stories.length === 0 ? (
+    <p className="text-gray-500 text-center">Нет новостей.</p>
+  ) : (
+    <div className="grid grid-cols-1 gap-4">
+      {stories.map((story) => (
+        <StoryCard key={story.id} story={story} isLink={true} />
+      ))}
     </div>
+  )}
+</div>
   );
 };
 

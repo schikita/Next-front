@@ -6,7 +6,7 @@ import AdBanner from "@/components/AdBanner/AdBanner";
 const HomePage = () => {
   return (
     <main className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 mt-6">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
         {/* Основной контент */}
         <div className="md:col-span-3">
           <CategoryNewsList />
@@ -22,8 +22,8 @@ const HomePage = () => {
           <PopularStories />
         </div>
 
-        {/* Выбор редакции */}
-        <div className="pt-5 md:col-span-1">
+        {/* Выбор редакции, теперь шире */}
+        <div className="pt-5 md:col-span-3 lg:col-span-1">
           <EditorialPicks />
         </div>
       </div>

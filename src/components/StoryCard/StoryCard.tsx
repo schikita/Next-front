@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import DynamicTimeDisplay from "@/components/DynamicTimeDisplay/DynamicTimeDisplay";
-import "./storyStyle.css";  // Импортируем файл стилей
 
 interface Story {
   id: number;
@@ -39,7 +38,7 @@ const StoryCard: React.FC<{ story: Story }> = ({ story }) => {
       </div>
 
       {/* Контент */}
-      <div className="p-4 flex flex-col justify-between h-40">
+      <div className="p-2 flex flex-col justify-between h-40">
         {/* Категория */}
         {story.category && (
           <span className="absolute top-3 left-3 bg-black/70 text-white text-xs font-semibold px-2 py-1 rounded-md">
@@ -47,9 +46,11 @@ const StoryCard: React.FC<{ story: Story }> = ({ story }) => {
           </span>
         )}
 
-        {/* Заголовок (обособленный блок) */}
+        {/* Заголовок */}
         <div className="mt-0">
-          <h3 className="story-card-title text-base font-semibold text-gray-900 dark:text-white leading-tight">
+          <h3
+            className="story-card-title text-base font-semibold text-gray-900 dark:text-white leading-tight"
+          >
             {story.title}
           </h3>
         </div>
