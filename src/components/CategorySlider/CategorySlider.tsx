@@ -85,7 +85,7 @@ const CategorySlider: React.FC<CategorySliderProps> = ({
   };
 
   return (
-    <div className="relative max-w-screen-lg mx-auto px-4 sm:px-6 md:px-8">
+    <div className="relative max-w-screen-lg mx-auto">
       {/* Контейнер с категориями и стрелками */}
       <div className="relative flex items-center">
         {/* Левая стрелка */}
@@ -101,7 +101,7 @@ const CategorySlider: React.FC<CategorySliderProps> = ({
         {/* Категории */}
         <div
           ref={containerRef}
-          className="flex space-x-3 overflow-x-auto no-scrollbar scroll-smooth px-8 md:px-0"
+          className="flex space-x-3 overflow-x-auto no-scrollbar scroll-smooth  md:px-0"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}

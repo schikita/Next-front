@@ -16,8 +16,9 @@ const HomePage = () => {
   }, []);
 
   return (
-    <main className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 mt-6">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+    <main className="max-w-6xl mx-auto px-0 sm:px-0 md:px-8 mt-6">
+      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-4 gap-2">
+
         {/* Основной контент */}
         <div className="md:col-span-3">
           {loading ? (

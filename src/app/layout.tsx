@@ -3,6 +3,7 @@ import Header from "@/components/header/Header";
 import { UserProvider } from "@/context/UserContext";
 import "./globals.css";
 import Footer from "@/components/footer/Footer";
+import BackToTop from "@/components/BackToTop/BackToTop"; // Импортируем компонент
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,8 +29,9 @@ export default function RootLayout({
         {/* ✅ Оборачиваем всё в `UserProvider` */}
         <UserProvider>
           <Header />
-          <main className="container mx-auto px-4">{children}</main>
+          <main className="container mx-auto px-0 sm:px-0 md:px-4">{children}</main>
           <Footer />
+          <BackToTop /> {/* Размещение кнопки на всех страницах */}
         </UserProvider>
       </body>
     </html>
