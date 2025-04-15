@@ -7,7 +7,7 @@ interface ShareButtonsProps {
   onClose: () => void;
   shareUrl: string;
   title: string;
-  imageUrl?: string | null; // ✅ Добавляем поддержку изображения
+  imageUrl: string; // Обновлено для использования обязательного изображения
 }
 
 const ShareButtons: React.FC<ShareButtonsProps> = ({ open, onClose, shareUrl, title, imageUrl }) => {
@@ -15,7 +15,7 @@ const ShareButtons: React.FC<ShareButtonsProps> = ({ open, onClose, shareUrl, ti
 
   const titleToShare = encodeURIComponent(title);
   const encodedUrl = encodeURIComponent(shareUrl);
-  const encodedImage = imageUrl ? encodeURIComponent(imageUrl) : ""; // ✅ Кодируем картинку
+  const encodedImage = encodeURIComponent(imageUrl); // Кодируем картинку для передачи
 
   const socialLinks = [
     {
@@ -25,7 +25,7 @@ const ShareButtons: React.FC<ShareButtonsProps> = ({ open, onClose, shareUrl, ti
     },
     {
       name: "Twitter (X)",
-      href: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${titleToShare}`,
+      href: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${titleToShare}&image=${encodedImage}`,
       icon: "/social-icons/x.svg",
     },
     {
@@ -39,7 +39,6 @@ const ShareButtons: React.FC<ShareButtonsProps> = ({ open, onClose, shareUrl, ti
       icon: "/social-icons/vk.svg",
     },
   ];
-  
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">

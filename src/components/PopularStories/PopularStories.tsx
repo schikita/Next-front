@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import StoryCard from "@/components/StoryCard/StoryCard";
+import "./style-popular.css"
 
 interface Story {
   id: number;
@@ -32,7 +33,6 @@ const PopularStories = () => {
       }
 
       const data = await response.json();
-      console.log("📥 Данные популярных сюжетов:", data);
 
       if (data.results && data.results.length > 0) {
         const formattedStories: Story[] = data.results.map((story: any) => ({
@@ -74,7 +74,7 @@ const PopularStories = () => {
 
       {/* Вывод популярных сюжетов */}
       {!loading && stories.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="carder grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {stories.map((story) => (
             <StoryCard key={story.id} story={story} />
           ))}

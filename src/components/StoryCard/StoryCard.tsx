@@ -21,14 +21,14 @@ const StoryCard: React.FC<{ story: Story }> = ({ story }) => {
       className="block group relative overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 shadow-md transition hover:shadow-lg dark:hover:shadow-gray-900"
     >
       {/* Изображение */}
-      <div className="relative w-full h-52 bg-gray-100 dark:bg-gray-800">
+      <div className="z-0 relative w-full h-52 bg-gray-100 dark:bg-gray-800">
         {story.main_image ? (
           <Image
             src={story.main_image}
             alt={story.title}
             layout="fill"
             objectFit="cover"
-            className="transition-transform duration-300 group-hover:scale-105"
+            className="z-0 transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-gray-500 text-sm">

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { getUser, refreshAccessToken, logoutUser } from "@/lib/api";
 import { getCookie } from "cookies-next";
 
@@ -18,6 +18,9 @@ interface UserContextType {
   isLoading: boolean;
   login: (userData: User) => void;
   logout: () => Promise<void>;
+  isAuthModalOpen: boolean;
+  openAuthModal: () => void;
+  closeAuthModal: () => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -25,9 +28,8 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false); // Состояние для модального окна
 
-
-  
   useEffect(() => {
     const checkUser = async () => {
       setIsLoading(true);
@@ -72,8 +74,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
   };
 
+  const openAuthModal = () => setIsAuthModalOpen(true);
+  const closeAuthModal = () => setIsAuthModalOpen(false);
+
   return (
-    <UserContext.Provider value={{ user, isLoading, login, logout }}>
+    <UserContext.Provider value={{ user, isLoading, login, logout, isAuthModalOpen, openAuthModal, closeAuthModal }}>
       {children}
     </UserContext.Provider>
   );

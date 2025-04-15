@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 
 interface Category {
@@ -85,14 +85,14 @@ const CategorySlider: React.FC<CategorySliderProps> = ({
   };
 
   return (
-    <div className="relative max-w-screen-lg mx-auto">
+    <div className="relative max-w-screen-lg mx-auto z-30"> {/* Внесение z-index сюда для корректного позиционирования */}
       {/* Контейнер с категориями и стрелками */}
-      <div className="relative flex items-center">
+      <div className="relative flex items-center z-30">
         {/* Левая стрелка */}
         {!isAtStart && (
           <button
             onClick={scrollLeft}
-            className="absolute left-0 z-10 bg-white dark:bg-gray-800 shadow-md rounded-full p-2 flex items-center justify-center border border-gray-300 dark:border-gray-600"
+            className="absolute left-0 z-40 bg-white dark:bg-gray-800 shadow-md rounded-full p-2 flex items-center justify-center border border-gray-300 dark:border-gray-600"
           >
             <ChevronLeftIcon className="w-6 h-6 text-gray-600 dark:text-gray-400" />
           </button>
@@ -108,31 +108,29 @@ const CategorySlider: React.FC<CategorySliderProps> = ({
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {categories.map((category) => (
-          <button
-          key={category.id}
-          onClick={() => onSelectCategory(category.id)}
-          className={`inline-flex items-center justify-center text-sm font-semibold rounded-2xl border-2 shadow-sm transition-all whitespace-nowrap px-4 py-1
-            ${
-              selectedCategory === category.id
-                ? "border-4 border-black dark:border-white bg-gray-200 dark:bg-gray-800 text-black dark:text-white"
-                : "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-300 dark:hover:bg-gray-600 hover:bg-gray-100"
-            }`}
-        >
-          {category.name}
-        </button>
-        
-         
+            <button
+              key={category.id}
+              onClick={() => onSelectCategory(category.id)}
+              className={`inline-flex items-center justify-center text-sm font-semibold rounded-2xl border-2 shadow-sm transition-all whitespace-nowrap px-4 py-1
+                ${
+                  selectedCategory === category.id
+                    ? "border-4 border-black dark:border-white bg-gray-200 dark:bg-gray-800 text-black dark:text-white"
+                    : "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-300 dark:hover:bg-gray-600 hover:bg-gray-100"
+                }`}
+            >
+              {category.name}
+            </button>
           ))}
         </div>
 
         {/* Правая стрелка */}
         {!isAtEnd && (
           <button
-          onClick={scrollRight}
-          className="absolute right-0 z-10 bg-white dark:bg-gray-800 shadow-md rounded-full p-2 flex items-center justify-center border border-gray-300 dark:border-gray-600"
-        >
-          <ChevronRightIcon className="w-6 h-6 text-gray-600 dark:text-gray-400" />
-        </button>
+            onClick={scrollRight}
+            className="absolute right-0 z-40 bg-white dark:bg-gray-800 shadow-md rounded-full p-2 flex items-center justify-center border border-gray-300 dark:border-gray-600"
+          >
+            <ChevronRightIcon className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+          </button>
         )}
       </div>
     </div>

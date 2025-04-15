@@ -37,7 +37,7 @@ interface Story {
   creation_at: string;
   category: Category;
   news_articles: NewsArticle[];
-  main_images: string[];
+  main_images: string[];  // Массив изображений сюжета
 }
 
 const StoryDetailPage = () => {
@@ -85,13 +85,14 @@ const StoryDetailPage = () => {
   const pageTitle = selectedArticle?.title || "Новость";
   const pageDescription =
     selectedArticle?.summary || selectedArticle?.description || "Читайте свежие новости на Zn.by";
-  const pageImage = story?.main_images?.[0] || "/default-news-image.jpg";
+  
+  // Выбираем первое изображение из массива, если оно есть, иначе ставим картинку по умолчанию
+  const pageImage = story?.main_images?.[0] || "/default-news-image.png";
   const pageUrl = `https://zn.by/story/${id}`;
 
-  // Обработчик клика на статью для обновления контента и прокрутки страницы вверх
   const handleArticleClick = (article: NewsArticle) => {
     setSelectedArticle(article);
-    window.scrollTo({ top: 0, behavior: "smooth" }); // Прокрутка страницы в верх
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
@@ -99,12 +100,16 @@ const StoryDetailPage = () => {
       <Head>
         <title>{pageTitle} | Zn.by</title>
         <meta name="description" content={pageDescription} />
+        
+        {/* Open Graph метатеги */}
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDescription} />
         <meta property="og:image" content={pageImage} />
         <meta property="og:url" content={pageUrl} />
         <meta property="og:type" content="article" />
         <meta property="og:site_name" content="Zn.by" />
+        
+        {/* Twitter метатеги */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={pageTitle} />
         <meta name="twitter:description" content={pageDescription} />
@@ -143,7 +148,7 @@ const StoryDetailPage = () => {
                       articles={story.news_articles.filter(
                         (article) => article.id !== selectedArticle?.id
                       )}
-                      onArticleClick={handleArticleClick} // Используем новый обработчик
+                      onArticleClick={handleArticleClick}
                       selectedArticle={selectedArticle}
                     />
                   )}

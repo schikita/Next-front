@@ -10,13 +10,11 @@ import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'; // Иконк
 import Link from "next/link";
 import { useUser } from "@/context/UserContext";
 
-const Header = () => {
+const Header = ({ setAuthModalOpen }: { setAuthModalOpen: React.Dispatch<React.SetStateAction<boolean>> }) => {
   const [theme, setTheme] = useState<string>('light'); // Состояние для темы
   const { user } = useUser();
-  const [isAuthModalOpen, setAuthModalOpen] = useState(false);
   const [loading, setLoading] = useState(true); // Состояние для загрузки
 
-  // Проверяем, какая тема установлена при первом рендере
   useEffect(() => {
     const currentTheme = localStorage.getItem('theme') || 'light'; // Получаем тему из localStorage
     setTheme(currentTheme);
@@ -27,7 +25,6 @@ const Header = () => {
     }, 2000);
   }, []);
 
-  // Переключение темы
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
@@ -35,11 +32,13 @@ const Header = () => {
     document.documentElement.classList.toggle('dark', newTheme === 'dark'); // Применяем класс dark на <html>
   };
 
+  const handleUserPanelClick = () => {
+    setAuthModalOpen(true); // Открываем модальное окно при клике на UserPanel
+  };
+
   return (
     <header className="bg-background dark:bg-gray-800 py-4 shadow-lg">
-      {/* Контейнер с фиксированными отступами и выравниванием, max-width ограничивает ширину */}
       <div className="container mx-auto px-4 sm:px-6 flex justify-between items-center">
-        
         {/* Логотип с анимацией и плавным переходом */}
         <div className="flex items-center space-x-4">
           {loading ? (
@@ -79,7 +78,9 @@ const Header = () => {
           {loading ? (
             <div className="w-10 h-10 bg-gray-300 dark:bg-gray-700 animate-pulse rounded-full"></div> // Скелетон для иконки пользователя
           ) : (
-            <UserPanel />
+            <div onClick={handleUserPanelClick}>
+              <UserPanel /> {/* Добавляем обработчик клика */}
+            </div>
           )}
         </div>
       </div>
@@ -93,8 +94,7 @@ const Header = () => {
         )}
       </div>
 
-      {/* Модальное окно авторизации */}
-      {isAuthModalOpen && <AuthModal onClose={() => setAuthModalOpen(false)} />}
+
     </header>
   );
 };

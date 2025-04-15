@@ -77,7 +77,7 @@ const CategoryNavigation = () => {
     {!isAtStart && (
       <button
         onClick={scrollLeft}
-        className="absolute left-0 z-10 bg-white dark:bg-gray-800 shadow-md rounded-full p-2 flex items-center justify-center border border-gray-300 dark:border-gray-600"
+        className="absolute left-0 bg-white dark:bg-gray-800 shadow-md rounded-full p-2 flex items-center justify-center border border-gray-300 dark:border-gray-600"
       >
         <ChevronLeftIcon className="w-6 h-6 text-gray-600 dark:text-gray-400" />
       </button>
@@ -107,7 +107,7 @@ const CategoryNavigation = () => {
     {/* Правая стрелка */}
     <button
       onClick={scrollRight}
-      className={`absolute right-0 z-10 bg-white dark:bg-gray-800 shadow-md rounded-full p-2 flex items-center justify-center border border-gray-300 dark:border-gray-600 ${
+      className={`absolute right-0  bg-white dark:bg-gray-800 shadow-md rounded-full p-2 flex items-center justify-center border border-gray-300 dark:border-gray-600 ${
         isAtEnd ? "opacity-0 pointer-events-none" : ""
       }`}
       disabled={isAtEnd}

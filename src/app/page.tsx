@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from "react";
 import CategoryNewsList from "@/components/CategoryNewsList/CategoryNewsList";
+import { useUser } from "@/context/UserContext"; 
 import PopularStories from "@/components/PopularStories/PopularStories";
 import EditorialPicks from "@/components/EditorialPicks/EditorialPicks";
 import AdBanner from "@/components/AdBanner/AdBanner";
 
 const HomePage = () => {
   const [loading, setLoading] = useState(true);
+  const { isAuthModalOpen } = useUser(); 
 
   useEffect(() => {
     setTimeout(() => {
@@ -38,11 +40,13 @@ const HomePage = () => {
         </div>
 
         {/* Популярные сюжеты */}
-        <div className="md:col-span-3">
+        <div className=" md:col-span-3">
           {loading ? (
             <div className="h-72 w-full bg-gray-300 dark:bg-gray-700 animate-pulse rounded-lg"></div> // Скелетон для PopularStories
           ) : (
-            <PopularStories />
+                <PopularStories />
+             
+            
           )}
         </div>
 

@@ -1,29 +1,31 @@
-"use client";
+"use client";  // Добавляем директиву для клиентского компонента
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { getUser } from "@/lib/api";
+import React, { useEffect, useState } from "react";
+import { useUser } from "@/context/UserContext"; // предполагается, что у вас есть контекст пользователя
 
 const ProfilePage = () => {
-  const router = useRouter();
-  const [user, setUser] = useState<any>(null);
+  const { user, isLoading } = useUser();
+  const [isPageLoaded, setIsPageLoaded] = useState(false);
 
   useEffect(() => {
-    getUser()
-      .then(setUser)
-      .catch((error) => {
-        console.error("❌ Ошибка получения пользователя:", error);
-        router.push("/");
-      });
-  }, [router]);
+    // После того как пользователь загрузился, устанавливаем флаг для отрисовки страницы
+    if (user) {
+      setIsPageLoaded(true);
+    }
+  }, [user]); // Эффект срабатывает, когда данные пользователя обновляются
 
-  if (!user) return <p>Загрузка...</p>;
+  if (isLoading) {
+    return <div>Загрузка...</div>; // Пока идет загрузка, показываем текст "Загрузка..."
+  }
+
+  if (!isPageLoaded) {
+    return <div>Пожалуйста, подождите...</div>; // Пока данные пользователя не получены, показываем текст
+  }
 
   return (
-    <div className="max-w-3xl mx-auto mt-10 p-6 bg-white shadow rounded">
-      <h1 className="text-2xl font-bold mb-4">Профиль</h1>
-      <p><strong>Email:</strong>123</p>
-      <p><strong>Имя:</strong> 123</p>
+    <div>
+   
+      {/* Здесь ваш контент для профиля */}
     </div>
   );
 };

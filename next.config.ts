@@ -1,7 +1,7 @@
 const nextConfig = {
   reactStrictMode: false, // Отключаем строгий режим (на время тестов)
   experimental: {
-    appDir: true, // Должно быть включено
+    //appDir: true, // Должно быть включено
   },
   images: {
     domains: ["zn.by"],

@@ -14,8 +14,7 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [acceptedPolicy, setAcceptedPolicy] = useState(false); // Состояние для чекбокса
-
+  const [acceptedPolicy, setAcceptedPolicy] = useState(false);
 
   const modalRef = useRef<HTMLDivElement | null>(null);
 
@@ -85,12 +84,12 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+    <div className="modal-overlay modal">
       <div
         ref={modalRef}
-        className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-96 relative"
+        className="modal-content"
       >
-        <button className="absolute top-4 right-4 text-gray-500" onClick={onClose}>
+        <button className="modal-close" onClick={onClose}>
           ✕
         </button>
 
@@ -100,7 +99,7 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
             <input
               type="email"
               placeholder="Ваш email"
-              className="w-full border border-gray-300 rounded p-2"
+              className="w-full border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white bg-white dark:bg-gray-700 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -111,7 +110,7 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
                 onChange={(e) => setAcceptedPolicy(e.target.checked)}
                 className="mr-2"
               />
-              <label className="text-sm text-gray-600">
+              <label className="text-sm text-gray-600 dark:text-gray-300">
                 Я соглашаюсь с{" "}
                 <Link href="/data-processing-policy" className="text-blue-600 hover:underline" onClick={handlePolicyLinkClick}>
                   политикой обработки данных
@@ -119,13 +118,12 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
               </label>
             </div>
             <button
-  className={`w-full py-2 rounded mt-3 transition ${acceptedPolicy ? "bg-blue-500 hover:bg-blue-600" : "bg-gray-400 cursor-not-allowed"}`}
-  onClick={handleEmailSubmit}
-  disabled={!acceptedPolicy || loading}
->
-  {loading ? "Отправка..." : "Запросить код"}
-</button>
-
+              className={`w-full py-2 rounded mt-3 transition ${acceptedPolicy ? "bg-blue-500 hover:bg-blue-600" : "bg-gray-400 cursor-not-allowed"}`}
+              onClick={handleEmailSubmit}
+              disabled={!acceptedPolicy || loading}
+            >
+              {loading ? "Отправка..." : "Запросить код"}
+            </button>
           </>
         ) : (
           <>
@@ -133,7 +131,7 @@ const AuthModal = ({ onClose }: { onClose: () => void }) => {
             <input
               type="text"
               placeholder="Код из email"
-              className="w-full border border-gray-300 rounded p-2"
+              className="w-full  border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white bg-white dark:bg-gray-700 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={code}
               onChange={(e) => setCode(e.target.value)}
             />

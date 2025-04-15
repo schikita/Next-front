@@ -142,3 +142,103 @@ export const logoutUser = async () => {
     console.error("❌ Ошибка при выходе из аккаунта:", error);
   }
 };
+
+
+/** 🔹 Обновление логотипа канала */
+export const updateChannelLogo = async (channelId: string, file: File) => {
+  const formData = new FormData();
+  formData.append("favicon", file);
+
+  try {
+    const response = await fetch(`${BASE_URL}/api/v1/channels/${channelId}/logo`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${getCookie("access-token")}`, // Добавляем токен авторизации
+      },
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Ошибка при обновлении логотипа");
+    }
+
+    return data; // Возвращаем объект с обновленным логотипом канала
+  } catch (error) {
+    console.error("Ошибка при обновлении логотипа канала:", error);
+    throw error;
+  }
+};
+
+
+// Метод для обновления данных канала (например, имя, описание и т.д.)
+export const updateChannel = async (
+  channelId: string,
+  channelData: FormData | object,
+  method: string = "PATCH"
+) => {
+  const isFormData = channelData instanceof FormData;
+
+  // Устанавливаем заголовки для запроса
+  const headers = isFormData
+    ? { "Content-Type": "multipart/form-data" } // Если это FormData, добавляем нужный Content-Type
+    : { "Content-Type": "application/json" }; // Иначе передаем данные как JSON
+
+  // Формируем запрос
+  const response = await fetch(`${BASE_URL}/api/v1/sources/${channelId}/`, {
+    method: method,
+    headers: headers,
+    body: isFormData ? channelData : JSON.stringify(channelData), // Если это FormData, передаем как есть, иначе сериализуем объект
+  });
+
+  if (!response.ok) {
+    throw new Error("Ошибка при обновлении канала");
+  }
+
+  return await response.json(); // Возвращаем данные из ответа
+};
+
+export const deleteNews = async (newsId: number) => {
+  try {
+    // Отправляем DELETE запрос на сервер
+    const response = await fetch(`${BASE_URL}/api/v1/news/${newsId}/`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        // Если требуется авторизация, добавьте заголовок с токеном
+        // Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    // Проверяем успешность запроса
+    if (!response.ok) {
+      throw new Error("Не удалось удалить новость.");
+    }
+
+    // Возвращаем результат из ответа (если нужно)
+    return await response.json();
+  } catch (error) {
+    console.error("❌ Ошибка при удалении новости:", error);
+    throw error; // Бросаем ошибку дальше, чтобы обработать её в компоненте
+  }
+};
+
+// В вашем файле @/lib/api.ts
+
+// Метод для получения публикаций канала
+export const getPublications = async (channelId: number) => {
+  const response = await fetch(`${BASE_URL}/api/v1/news/?source=${channelId}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Ошибка загрузки публикаций');
+  }
+
+  const data = await response.json();
+  return data.results; // Возвращаем массив публикаций
+};

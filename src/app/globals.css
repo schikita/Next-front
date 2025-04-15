@@ -7,6 +7,13 @@
   --foreground: #171717;
 }
 
+* {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 .dark {
   --background: #171717; /* тёмная тема */
   --foreground: #ffffff;
@@ -63,4 +70,65 @@ footer a:hover {
     padding: 0;
     padding: 0;
   }
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5); /* затемнение */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999 !important; /* Убедитесь, что это число достаточно велико */
+}
+
+/* Общие стили для затемняющего фона */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5); /* Серый фон с прозрачностью */
+  z-index: 9999 !important; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Стили для самого модального окна */
+.modal-content {
+  background-color: #fff; /* Белый фон */
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 50; /* Позиционирование поверх всего контента */
+  max-width: 500px;
+  width: 100%;
+}
+
+/* Закрытие кнопки модального окна */
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #333;
+  cursor: pointer;
+  z-index: 60; /* Убедитесь, что кнопка закрытия всегда наверху */
+}
+
+.category-slider {
+  z-index: 30; /* Убедитесь, что категории находятся ниже фона затемнения */
+}
+
+body.modal-open {
+  overflow: hidden;
+}
+
+body.modal-open > *:not(.modal-overlay) {
+  display: none;
 }
