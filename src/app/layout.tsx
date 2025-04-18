@@ -24,7 +24,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [isAuthModalOpen, setAuthModalOpen] = useState(false); // Состояние для модального окна
+  const [isAuthModalOpen, setAuthModalOpen] = useState(false);
 
   useEffect(() => {
     if (isAuthModalOpen) {
@@ -45,7 +45,7 @@ export default function RootLayout({
             <AuthModal onClose={() => setAuthModalOpen(false)} />
           ) : (
             <>
-              <Header setAuthModalOpen={setAuthModalOpen} /> {/* Передаем функцию открытия модального окна */}
+              <Header setAuthModalOpen={setAuthModalOpen} /> 
               <main className="container mx-auto px-0 sm:px-0 md:px-4">{children}</main>
               <Footer />
               <BackToTop />

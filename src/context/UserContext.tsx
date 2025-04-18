@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { getUser, refreshAccessToken, logoutUser } from "@/lib/api";
-import { getCookie } from "cookies-next";
+import { getCookie, setCookie } from "cookies-next";  // Добавляем работу с cookies
 
 interface User {
   id: number;
@@ -15,9 +15,11 @@ interface User {
 
 interface UserContextType {
   user: User | null;
+  avatar: string | null;
   isLoading: boolean;
   login: (userData: User) => void;
   logout: () => Promise<void>;
+  setAvatar: (avatar: string) => void;
   isAuthModalOpen: boolean;
   openAuthModal: () => void;
   closeAuthModal: () => void;
@@ -28,7 +30,8 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false); // Состояние для модального окна
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [avatar, setAvatar] = useState<string | null>(null);
 
   useEffect(() => {
     const checkUser = async () => {
@@ -47,7 +50,13 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         }
 
         const fetchedUser = await getUser();
-        if (fetchedUser) setUser(fetchedUser);
+        if (fetchedUser) {
+          setUser(fetchedUser);
+          if (fetchedUser.avatar) {
+            setAvatar(fetchedUser.avatar);  // Устанавливаем аватар
+            setCookie('user-avatar', fetchedUser.avatar);  // Сохраняем аватар в cookies
+          }
+        }
       } catch (error) {
         console.error("❌ Ошибка загрузки пользователя:", error);
         setUser(null);
@@ -62,6 +71,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const login = (userData: User) => {
     console.log("🔹 Пользователь вошел:", userData);
     setUser(userData);
+    if (userData.avatar) {
+      setAvatar(userData.avatar);
+      setCookie('user-avatar', userData.avatar);  // Сохраняем аватар в cookies
+    }
   };
 
   const logout = async () => {
@@ -72,13 +85,25 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       console.error("❌ Ошибка при выходе:", error);
     }
     setUser(null);
+    setAvatar(null); // Очищаем аватар
+    setCookie('user-avatar', ''); // Очищаем аватар в cookies
   };
 
   const openAuthModal = () => setIsAuthModalOpen(true);
   const closeAuthModal = () => setIsAuthModalOpen(false);
 
   return (
-    <UserContext.Provider value={{ user, isLoading, login, logout, isAuthModalOpen, openAuthModal, closeAuthModal }}>
+    <UserContext.Provider value={{
+      user,
+      avatar,
+      isLoading,
+      login,
+      logout,
+      setAvatar,
+      isAuthModalOpen,
+      openAuthModal,
+      closeAuthModal
+    }}>
       {children}
     </UserContext.Provider>
   );

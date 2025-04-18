@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import ThemeSwitcher from "./ThemeSwitcher";
 import AuthModal from "@/components/Auth/AuthModal";
 import Logo from "./Logo";
@@ -10,10 +10,11 @@ import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'; // Иконк
 import Link from "next/link";
 import { useUser } from "@/context/UserContext";
 
-const Header = ({ setAuthModalOpen }: { setAuthModalOpen: React.Dispatch<React.SetStateAction<boolean>> }) => {
+const Header = () => {
   const [theme, setTheme] = useState<string>('light'); // Состояние для темы
-  const { user } = useUser();
+  const { user } = useUser();  // Получаем информацию о пользователе из контекста
   const [loading, setLoading] = useState(true); // Состояние для загрузки
+  const [isAuthModalOpen, setAuthModalOpen] = useState(false); // Состояние модального окна
 
   useEffect(() => {
     const currentTheme = localStorage.getItem('theme') || 'light'; // Получаем тему из localStorage
@@ -30,10 +31,6 @@ const Header = ({ setAuthModalOpen }: { setAuthModalOpen: React.Dispatch<React.S
     setTheme(newTheme);
     localStorage.setItem('theme', newTheme); // Сохраняем тему в localStorage
     document.documentElement.classList.toggle('dark', newTheme === 'dark'); // Применяем класс dark на <html>
-  };
-
-  const handleUserPanelClick = () => {
-    setAuthModalOpen(true); // Открываем модальное окно при клике на UserPanel
   };
 
   return (
@@ -78,8 +75,8 @@ const Header = ({ setAuthModalOpen }: { setAuthModalOpen: React.Dispatch<React.S
           {loading ? (
             <div className="w-10 h-10 bg-gray-300 dark:bg-gray-700 animate-pulse rounded-full"></div> // Скелетон для иконки пользователя
           ) : (
-            <div onClick={handleUserPanelClick}>
-              <UserPanel /> {/* Добавляем обработчик клика */}
+            <div>
+              <UserPanel setAuthModalOpen={setAuthModalOpen} /> {/* Передаем setAuthModalOpen в UserPanel */}
             </div>
           )}
         </div>
@@ -94,7 +91,8 @@ const Header = ({ setAuthModalOpen }: { setAuthModalOpen: React.Dispatch<React.S
         )}
       </div>
 
-
+      {/* Модальное окно авторизации */}
+      {isAuthModalOpen && <AuthModal onClose={() => setAuthModalOpen(false)} />}
     </header>
   );
 };

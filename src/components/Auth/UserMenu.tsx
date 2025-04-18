@@ -7,7 +7,7 @@ import Link from "next/link";
 interface UserMenuProps {
   closeMenu: () => void;
   logout: () => void;
-  channelId: string | number; // Добавляем channelId в пропсы
+  channelId: string | number; // channelId теперь обязательный пропс
 }
 
 const UserMenu: React.FC<UserMenuProps> = ({ closeMenu, logout, channelId }) => {
@@ -21,8 +21,8 @@ const UserMenu: React.FC<UserMenuProps> = ({ closeMenu, logout, channelId }) => 
             Личный кабинет
           </Link>
           <Link href={`/adminpage/${channelId}`} onClick={closeMenu} className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-  Мой канал
-</Link>
+            Мой канал
+          </Link>
           <button onClick={() => {
             logout(); // Логика выхода
             closeMenu(); // Закрыть меню

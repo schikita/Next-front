@@ -132,3 +132,10 @@ body.modal-open {
 body.modal-open > *:not(.modal-overlay) {
   display: none;
 }
+
+.user-menu {
+  position: absolute;
+  top: 100%; /* Расположим меню ниже */
+  right: 0;
+  z-index: 9999; /* Принудительно выше, чем CategorySlider */
+}

@@ -1,30 +1,37 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useUser } from "@/context/UserContext";
-import { useRouter } from "next/navigation"; // Импортируем useRouter
+import React, { useState, useEffect } from "react";
+import { useUser } from "@/context/UserContext"; // Получаем данные пользователя
+import { useRouter } from "next/navigation"; // Используем useRouter для перенаправления
 import AuthButton from "../Auth/AuthButton";
-import UserMenu from "../Auth/UserMenu";
+import UserMenu from "@/components/Auth/UserMenu";
+import { getCookie } from 'cookies-next'; // Импортируем getCookie
 
-const UserPanel = () => {
+const UserPanel = ({ setAuthModalOpen }: { setAuthModalOpen: React.Dispatch<React.SetStateAction<boolean>> }) => {
   const { user, isLoading, logout } = useUser();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [avatar, setAvatar] = useState<string | null>(null);
+  const [avatarState, setAvatarState] = useState<string | null>(null);
   const router = useRouter(); // Используем useRouter для перенаправления
 
   // Проверка, есть ли пользователь
   const userData = user || null;
 
-  // Формирование URL аватарки
-  const avatarSrc = userData?.avatar
-    ? `https://zn.by/${userData.avatar.replace(/^\/+/, "")}` // Убираем ведущие слэши, если они есть
-    : null;
+  const channelId = user ? user.id : ''; // Если пользователь авторизован, получаем его id, иначе пустая строка
 
   useEffect(() => {
-    if (avatarSrc) {
-      setAvatar(avatarSrc);
+    // Проверка аватара в cookies при загрузке
+    const avatarFromCookies = getCookie('user-avatar');
+    if (avatarFromCookies) {
+      setAvatarState(avatarFromCookies as string); // Если есть, устанавливаем в состояние
     }
-  }, [avatarSrc]);
+  }, []);
+
+  // Формирование URL аватарки
+  const avatarSrc = avatarState
+    ? avatarState.startsWith('http') // Проверяем, если URL уже начинается с http
+      ? avatarState // Если URL корректный, просто используем его
+      : `https://zn.by/${avatarState.replace(/^\/+/, "")}` // Иначе добавляем базовый URL
+    : null;
 
   // Генерация инициалов из `name`
   const getInitials = () => {
@@ -46,16 +53,25 @@ const UserPanel = () => {
     }
   };
 
+  // Обработчик нажатия на аватар
+  const handleAvatarClick = () => {
+    if (userData) {
+      setMenuOpen(!menuOpen); // Если пользователь авторизован, показываем UserMenu
+    } else {
+      setAuthModalOpen(true); // Если не авторизован, открываем модальное окно авторизации
+    }
+  };
+
   if (isLoading) {
     return <div className="w-9 h-9 rounded-full bg-gray-300 animate-pulse"></div>;
   }
 
   return userData ? (
     <div className="relative">
-      <button onClick={() => setMenuOpen(!menuOpen)} className="focus:outline-none">
-        {avatar ? (
+      <button onClick={handleAvatarClick} className="focus:outline-none">
+        {avatarSrc ? (
           <img
-            src={avatar}
+            src={avatarSrc} // Используем сохраненный аватар
             alt={userData.first_name || "Аватар"}
             className="w-9 h-9 rounded-full object-cover"
           />
@@ -65,7 +81,7 @@ const UserPanel = () => {
           </div>
         )}
       </button>
-      {menuOpen && <UserMenu closeMenu={() => setMenuOpen(false)} logout={handleLogout} />} {/* Изменили на handleLogout */}
+      {menuOpen && <UserMenu closeMenu={() => setMenuOpen(false)} logout={logout} channelId={channelId} />}
     </div>
   ) : (
     <AuthButton />
